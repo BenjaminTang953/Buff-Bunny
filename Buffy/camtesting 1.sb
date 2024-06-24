@@ -1,0 +1,14 @@
+camPort = 3
+camAddr = 1 'bus stops
+camReg = 67 'people
+camReadData = 0
+TricksList = ["Piroette","Split","Moonwalk"]
+
+
+Sub checkTrick
+  ColorRead = Sensor.ReadI2CRegister(camPort, camAddr, camReg) 'returns an integer from 1-3
+  Trick = TricksList[ColorRead-1]
+EndSub
+
+
+    
