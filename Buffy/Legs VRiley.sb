@@ -1,0 +1,507 @@
+'Brick Communications
+Mailbox.Connect("HEAD")
+MailID = Mailbox.Create("MBL")
+
+''Viarables
+Max = 25
+Min = -25
+LMax = 20
+LMin = -20
+KMin = -15
+KMax = 15
+
+''Degree Maxes
+LeftLMax = 45
+LeftKMin = 90
+RightLMax = 45
+
+''Body Parts
+Legs = "BC"
+LLeg = "B"
+RLeg = "C"
+LKnee = "A"
+RKnee = "D"
+ALL = "ABCD"
+Knee = "AD"
+Left = "AB"
+Right = "DC"
+
+
+''For Subs
+desiredPort = ""
+desiredSpeed = ""
+desiredMax = ""
+moveTime = 0
+
+'''Calibration Estimates
+
+Full = 70
+Full2 = 140
+Dab = 10
+Half = 30
+Middle = 0
+
+While Buttons.GetClicks() <> "E"
+EndWhile
+
+''''Dance Routine--------------------------------------------------------------------------------------
+StartTime = EV3.Time
+Speaker.Tone(20, 1000, 50)
+'Chorus - CURRENTLY WAITING ONE SEC 
+While EV3.Time - StartTime < 1*1000
+EndWhile
+Thread.Run = Chorus
+While EV3.Time - StartTime < 17*1000
+EndWhile
+Thread.Run = Chorus
+While EV3.Time - StartTime < 37*1000
+EndWhile
+
+
+'Verse
+While EV3.Time - StartTime < 53*1000 'PLACEHOLDER TIME - NOT SURE WHAT UR DOING WITH THE TIMES
+endWhile
+
+
+
+
+'Chorus
+While EV3.Time - StartTime < 67.5*1000
+EndWhile
+Thread.Run = Chorus
+While EV3.Time - StartTime < 83.5*1000
+EndWhile
+Thread.Run = Chorus
+While EV3.Time - StartTime < 200*1000
+EndWhile
+
+'''Parts-------------------------------------------------------------------------------------------------
+
+Sub Chorus
+ 'LINE 1: MOVE LEGS ALTERNATE
+  ChorusLine1Start = EV3.Time
+  'Leg1
+  Motor.ResetCount(LLeg)
+  Motor.StartSync(Legs, Max, Min)
+  Distance = Motor.GetCount(LLeg)
+  While EV3.Time - ChorusLine1Start < 0.25*1000 
+  Distance = Motor.GetCount(LLeg)
+  EndWhile
+  Motor.Stop(Legs, "False")
+  Motor.ResetCount(RLeg)
+  Motor.StartSync(Legs, Min, Max)
+  Distance = Motor.GetCount(RLeg)
+  While EV3.Time- ChorusLine1Start < 0.5 * 1000 
+  EndWhile
+  Motor.Stop(Legs, "False")
+  Motor.ResetCount(RLeg)
+  Motor.StartSync(Legs, Min, Max)
+  Distance = Motor.GetCount(RLeg)
+  While EV3.Time - ChorusLine1Start < 0.75* 1000  
+  EndWhile
+  Motor.Stop(Legs, "True")
+  Motor.ResetCount(LLeg)
+  Motor.StartSync(Legs, Max, Min)
+  Distance = Motor.GetCount(LLeg)
+  While EV3.Time - ChorusLine1Start < 1* 1000 
+  Distance = Motor.GetCount(LLeg)
+  EndWhile
+  Motor.ResetCount(LLeg)
+  Motor.StartSync(Legs, Max, Min)
+  Distance = Motor.GetCount(LLeg)
+  While EV3.Time - ChorusLine1Start < 1.25*1000  
+  Distance = Motor.GetCount(LLeg)
+  EndWhile
+  Motor.Stop(Legs, "False")
+  Motor.ResetCount(RLeg)
+  Motor.StartSync(Legs, Min, Max)
+  Distance = Motor.GetCount(RLeg)
+  While EV3.Time- ChorusLine1Start < 1.5 * 1000 
+  EndWhile
+  Motor.Stop(Legs, "False")
+  Motor.ResetCount(RLeg)
+  Motor.StartSync(Legs, Min, Max)
+  Distance = Motor.GetCount(RLeg)
+  While EV3.Time - ChorusLine1Start < 1.75* 1000 
+  EndWhile
+  Motor.Stop(Legs, "True")
+  Motor.ResetCount(LLeg)
+  Motor.StartSync(Legs, Max, Min)
+  Distance = Motor.GetCount(LLeg)
+  While EV3.Time - ChorusLine1Start < 2* 1000 
+  Distance = Motor.GetCount(LLeg)
+  EndWhile
+  Motor.Stop(Legs, "True")
+  Motor.ResetCount(LLeg)
+  Motor.StartSync(Legs, Max, Min)
+  Distance = Motor.GetCount(LLeg)
+  While EV3.Time - ChorusLine1Start < 2.25*1000 
+  Distance = Motor.GetCount(LLeg)
+  EndWhile
+  Motor.Stop(Legs, "False")
+  Motor.ResetCount(RLeg)
+  Motor.StartSync(Legs, Min, Max)
+  Distance = Motor.GetCount(RLeg)
+  While EV3.Time- ChorusLine1Start < 2.5 * 1000 
+  EndWhile
+  Motor.Stop(Legs, "False")
+  Motor.ResetCount(RLeg)
+  Motor.StartSync(Legs, Min, Max)
+  Distance = Motor.GetCount(RLeg)
+  While EV3.Time - ChorusLine1Start < 2.75* 1000 
+  EndWhile
+  Motor.Stop(Legs, "True")
+  Motor.ResetCount(LLeg)
+  Motor.StartSync(Legs, Max, Min)
+  Distance = Motor.GetCount(LLeg)
+  While EV3.Time - ChorusLine1Start < 3* 1000 
+  Distance = Motor.GetCount(LLeg)
+  EndWhile
+  Motor.ResetCount(LLeg)
+  Motor.StartSync(Legs, Max, Min)
+  Distance = Motor.GetCount(LLeg)
+  While EV3.Time - ChorusLine1Start < 3.25*1000 
+  Distance = Motor.GetCount(LLeg)
+  EndWhile
+  Motor.Stop(Legs, "False")
+  Motor.ResetCount(RLeg)
+  Motor.StartSync(Legs, Min, Max)
+  Distance = Motor.GetCount(RLeg)
+  While EV3.Time- ChorusLine1Start < 3.5 * 1000 
+  EndWhile
+  Motor.Stop(Legs, "False")
+  Motor.ResetCount(RLeg)
+  Motor.StartSync(Legs, Min, Max)
+  Distance = Motor.GetCount(RLeg)
+  While EV3.Time - ChorusLine1Start < 3.75* 1000 
+  EndWhile
+  Motor.Stop(Legs, "True")
+  Motor.ResetCount(LLeg)
+  Motor.StartSync(Legs, Max, Min)
+  Distance = Motor.GetCount(LLeg)
+  While EV3.Time - ChorusLine1Start < 4* 1000 
+  Distance = Motor.GetCount(LLeg)
+  EndWhile
+  Motor.Stop(Legs, "True")
+  'LINE 2: MARCHING 
+  ChorusLine2Start = EV3.Time
+    'Leg1
+  Motor.ResetCount(LLeg)
+  Motor.StartSync(Legs, Max, Min)
+  Distance = Motor.GetCount(LLeg)
+  While EV3.Time - ChorusLine2Start < 0.25*1000 
+  Distance = Motor.GetCount(LLeg)
+  EndWhile
+  Motor.Stop(Legs, "False")
+  Motor.ResetCount(RLeg)
+  Motor.StartSync(Legs, Min, Max)
+  Distance = Motor.GetCount(RLeg)
+  While EV3.Time- ChorusLine2Start < 0.5 * 1000 
+  EndWhile
+  Motor.Stop(Legs, "False")
+  Motor.ResetCount(RLeg)
+  Motor.StartSync(Legs, Min, Max)
+  Distance = Motor.GetCount(RLeg)
+  While EV3.Time - ChorusLine2Start < 0.75* 1000 
+  EndWhile
+  Motor.Stop(Legs, "True")
+  Motor.ResetCount(LLeg)
+  Motor.StartSync(Legs, Max, Min)
+  Distance = Motor.GetCount(LLeg)
+  While EV3.Time - ChorusLine2Start < 1* 1000 
+  Distance = Motor.GetCount(LLeg)
+  EndWhile
+  Motor.ResetCount(LLeg)
+  Motor.StartSync(Legs, Max, Min)
+  Distance = Motor.GetCount(LLeg)
+  While EV3.Time - ChorusLine2Start < 1.25*1000 
+  Distance = Motor.GetCount(LLeg)
+  EndWhile
+  Motor.Stop(Legs, "False")
+  Motor.ResetCount(RLeg)
+  Motor.StartSync(Legs, Min, Max)
+  Distance = Motor.GetCount(RLeg)
+  While EV3.Time- ChorusLine2Start < 1.5 * 1000 
+  EndWhile
+  Motor.Stop(Legs, "False")
+  Motor.ResetCount(RLeg)
+  Motor.StartSync(Legs, Min, Max)
+  Distance = Motor.GetCount(RLeg)
+  While EV3.Time - ChorusLine2Start < 1.75* 1000 
+  EndWhile
+  Motor.Stop(Legs, "True")
+  Motor.ResetCount(LLeg)
+  Motor.StartSync(Legs, Max, Min)
+  Distance = Motor.GetCount(LLeg)
+  While EV3.Time - ChorusLine2Start < 2* 1000  
+  Distance = Motor.GetCount(LLeg)
+  EndWhile
+  Motor.Stop(Legs, "True")
+  Motor.ResetCount(LLeg)
+  Motor.StartSync(Legs, Max, Min)
+  Distance = Motor.GetCount(LLeg)
+  While EV3.Time - ChorusLine2Start < 2.25*1000 
+  Distance = Motor.GetCount(LLeg)
+  EndWhile
+  Motor.Stop(Legs, "False")
+  Motor.ResetCount(RLeg)
+  Motor.StartSync(Legs, Min, Max)
+  Distance = Motor.GetCount(RLeg)
+  While EV3.Time- ChorusLine2Start < 2.5 * 1000 
+  EndWhile
+  Motor.Stop(Legs, "False")
+  Motor.ResetCount(RLeg)
+  Motor.StartSync(Legs, Min, Max)
+  Distance = Motor.GetCount(RLeg)
+  While EV3.Time - ChorusLine2Start < 2.75* 1000 
+  EndWhile
+  Motor.Stop(Legs, "True")
+  Motor.ResetCount(LLeg)
+  Motor.StartSync(Legs, Max, Min)
+  Distance = Motor.GetCount(LLeg)
+  While EV3.Time - ChorusLine2Start < 3* 1000  
+  Distance = Motor.GetCount(LLeg)
+  EndWhile
+  Motor.Stop(Legs, "False")
+    Motor.ResetCount(LLeg)
+  Motor.StartSync(Legs, Max, Min)
+  Distance = Motor.GetCount(LLeg)
+  While EV3.Time - ChorusLine2Start < 3.25*1000 
+  Distance = Motor.GetCount(LLeg)
+  EndWhile
+  Motor.Stop(Legs, "False")
+  Motor.ResetCount(RLeg)
+  Motor.StartSync(Legs, Min, Max)
+  Distance = Motor.GetCount(RLeg)
+  While EV3.Time- ChorusLine2Start < 3.5 * 1000 
+  EndWhile
+  Motor.Stop(Legs, "False")
+  Motor.ResetCount(RLeg)
+  Motor.StartSync(Legs, Min, Max)
+  Distance = Motor.GetCount(RLeg)
+  While EV3.Time - ChorusLine2Start < 3.75* 1000 
+  EndWhile
+  Motor.Stop(Legs, "True")
+  Motor.ResetCount(LLeg)
+  Motor.StartSync(Legs, Max, Min)
+  Distance = Motor.GetCount(LLeg)
+  While EV3.Time - ChorusLine2Start < 4* 1000 
+  Distance = Motor.GetCount(LLeg)
+  EndWhile
+  Motor.Stop(Legs, "True")
+
+  'LINE 3: NOTHING
+  ChorusLine3Start = EV3.Time
+  While EV3.Time - ChorusLine3Start < 4*1000
+  EndWhile
+  
+  'LINE 4: NOTHING Bends
+  ChorusLine4Start = EV3.Time
+  While EV3.Time - ChorusLine4Start < 3*1000
+  EndWhile
+EndSub
+
+Sub Verse
+  Trick = Mailbox.Receive(MailID)
+  If Trick = "Piroette" Then
+    Piroette()
+  ElseIf Trick = "Split" Then
+    Split()
+  Else
+    Moonwalk()
+  EndIf
+EndSub
+
+Sub Moonwalk
+  moveStart = ev3.Time
+  moveTime = 0.25
+  
+  desiredPort = LLeg
+  desiredSpeed = LMax
+  desiredMax = LeftLMax 
+  Thread.Run = BendMax
+  
+  desiredPort = RLeg
+  desiredSpeed = LMin
+  desiredMax = -RightLMax 
+  Thread.Run = BendMin
+  Wait()
+  
+  For i = 1 To 11 '11 lots of full leg walks - should finish with splits
+    For i = 1 To 2
+      desiredPort = LLeg
+      desiredSpeed = LMin
+      desiredMax = -LeftLMax 
+      Thread.Run = BendMin
+  
+      desiredPort = RLeg
+      desiredSpeed = LMax
+      desiredMax = RightLMax 
+      Thread.Run = BendMax
+    EndFor 
+    Wait()
+    For i = 1 To 2
+      desiredPort = LLeg
+      desiredSpeed = LMax
+      desiredMax = LeftLMax 
+      Thread.Run = BendMax
+  
+      desiredPort = RLeg
+      desiredSpeed = LMin
+      desiredMax = -RightLMax
+      Thread.Run = BendMin
+    EndFor 
+    Wait()
+  EndFor
+  desiredPort = RLeg
+  desiredSpeed = LMax
+  desiredMax = RightLMax 
+  Thread.Run = BendMax
+  
+  desiredPort = LLeg
+  desiredSpeed = LMin
+  desiredMax = -LeftLMax 
+  Thread.Run = BendMin
+EndSub
+  
+Sub Piroette
+  moveStart = ev3.Time
+  moveTime = 0.25
+  desiredPort = LLeg
+  desiredSpeed = LMax
+  desiredMax = LeftLMax 
+  Thread.Run = BendMax
+  
+  desiredPort = LKnee
+  desiredSpeed = KMin
+  desiredMax = LeftKMin 
+  Thread.Run = BendMin
+  While ev3.Time < moveStart + 7.75*1000
+  EndWhile
+  
+  desiredPort = LLeg
+  desiredSpeed = LMin
+  desiredMax = -LeftLMax
+  Thread.Run = BendMin
+  
+  desiredPort = LKnee
+  desiredSpeed = KMax
+  desiredMax = -LeftKMin 
+  Thread.Run = BendMax
+EndSub
+
+
+Sub Split
+  moveStart = EV3.Time
+  moveTime = 0.25
+  
+  desiredPort = LLeg
+  desiredSpeed = LMax
+  desiredMax = LeftLMax 
+  Thread.Run = BendMax
+  
+  desiredPort = RLeg
+  desiredSpeed = LMin
+  desiredMax = -RightLMax 
+  Thread.Run = BendMin
+  Wait()
+  
+  For i = 1 To 5 '5 lots of full leg walks - should finish with splits
+    For i = 1 To 2
+      desiredPort = LLeg
+      desiredSpeed = LMin
+      desiredMax = -LeftLMax 
+      Thread.Run = BendMin
+  
+      desiredPort = RLeg
+      desiredSpeed = LMax
+      desiredMax = RightLMax 
+      Thread.Run = BendMax
+    EndFor 
+    Wait()
+    For i = 1 To 2
+      desiredPort = LLeg
+      desiredSpeed = LMax
+      desiredMax = LeftLMax 
+      Thread.Run = BendMax
+  
+      desiredPort = RLeg
+      desiredSpeed = LMin
+      desiredMax = -RightLMax
+      Thread.Run = BendMin
+    EndFor 
+    Wait()
+  EndFor
+  
+  While EV3.Time < moveStart + 7.5*1000
+  EndWhile
+  For i = 1 To 5 '5 lots of full leg walks - should finish with splits
+    For i = 1 To 2
+      desiredPort = LLeg
+      desiredSpeed = LMin
+      desiredMax = -LeftLMax 
+      Thread.Run = BendMin
+  
+      desiredPort = RLeg
+      desiredSpeed = LMax
+      desiredMax = RightLMax 
+      Thread.Run = BendMax
+    EndFor 
+    
+    Wait()
+    
+    For i = 1 To 2
+      desiredPort = LLeg
+      desiredSpeed = LMax
+      desiredMax = LeftLMax 
+      Thread.Run = BendMax
+  
+      desiredPort = RLeg
+      desiredSpeed = LMin
+      desiredMax = -RightLMax
+      Thread.Run = BendMin
+    EndFor 
+    
+    Wait()
+  EndFor
+  
+  desiredPort = RLeg
+  desiredSpeed = LMax
+  desiredMax = RightLMax 
+  Thread.Run = BendMax
+  
+  desiredPort = LLeg
+  desiredSpeed = LMin
+  desiredMax = -LeftLMax 
+  Thread.Run = BendMin
+EndSub
+  
+  
+  
+    
+   
+sub BendMax
+  moveTime = moveTime*1000
+  Motor.ResetCount(desiredPort)
+  Motor.Start(desiredPort,desiredSpeed)
+  manouverStart = EV3.Time
+  
+  While EV3.Time <= manouverStart+moveTime And Motor.GetCount(desiredPort) < desiredMax
+  EndWhile
+EndSub
+
+Sub BendMin
+  moveTime = moveTime*1000
+  Motor.ResetCount(desiredPort)
+  Motor.Start(desiredPort, desiredSpeed)
+  manouverStart = EV3.Time
+  
+  While EV3.Time <= manouverStart+moveTime And Motor.GetCount(desiredPort) > desiredMax
+  EndWhile
+EndSub
+
+Sub Wait
+  waitStart = EV3.Time
+  While EV3.Time < waitStart+0.25*1000
+  EndWhile
+EndSub
