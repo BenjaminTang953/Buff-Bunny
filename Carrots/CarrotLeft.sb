@@ -1,0 +1,318 @@
+'''ROBOBOT LEFT 1
+''Need to add Bluetooth.
+''Note Callibrations need editing only for side, but that can be easily removed.
+
+
+''Viarables
+Max = 30
+Min = -30
+HS = 5
+VHS = 10
+''Motor
+BothMot = "BC"
+RMot = "C"
+LMot = "B"
+HMot = "A"
+
+''''Dance Routine--------------------------------------------------------------------------------------
+StartTime = EV3.Time
+
+'Chorus
+While EV3.Time - StartTime < 1*1000
+EndWhile
+Thread.Run = Chorus
+Thread.Run = Hops
+While EV3.Time - StartTime < 17*1000
+EndWhile
+Thread.Run = Chorus
+Thread.Run = Hops
+While EV3.Time - StartTime < 33*1000
+EndWhile
+''Thread.Run = ChorusEnd
+'Verse
+While EV3.Time - StartTime < 37*1000
+EndWhile
+Thread.Run = Verse
+Thread.Run =VHops
+'Chorus
+While EV3.Time - StartTime < 67.5*1000
+EndWhile
+Thread.Run = Chorus
+Thread.Run = Hops
+While EV3.Time - StartTime < 83.5*1000
+EndWhile
+Thread.Run = Chorus
+Thread.Run = Hops
+While EV3.Time - StartTime < 99.5*1000 
+EndWhile
+Thread.Run = ChorusEnd
+While EV3.Time - StartTime < 200*1000
+EndWhile
+
+
+'''Parts-------------------------------------------------------------------------------------------------
+Sub Chorus
+  'LINE 1: MOVING FORWARDS
+  ChorusLine1Start = EV3.Time
+  Motor.Start(BothMot, Max)
+  While EV3.Time - ChorusLine1Start < 4*1000 
+  EndWhile
+  Motor.Stop(BothMot, "True") 
+  
+  'LINE 2: MOVING BACKWARDS
+  ChorusLine2Start = EV3.Time
+  Motor.Start(BothMot, Min)
+  While EV3.Time - ChorusLine2Start < 4*1000 
+  EndWhile
+  Motor.Stop(BothMot, "True")
+  
+  'LINE 3: 90DEG RIGHT, 180DEG LEFT
+  ChorusLine3Start = EV3.Time
+  'Turning 90Deg Right
+  Motor.StartSync(BothMot, 24, -24) '''alter for turn
+  While EV3.Time - ChorusLine3Start < 1*1000 
+  EndWhile
+  Motor.Stop(BothMot, "True")
+  While EV3.Time - ChorusLine3Start < 1*1000
+  EndWhile
+  'Turning 180Deg Left
+  Motor.StartSync(BothMot, -15, 15) '''alter for turn
+  While EV3.Time - ChorusLine3Start < 4*1000 
+  EndWhile
+  Motor.Stop(BothMot, "True")
+  While EV3.Time - ChorusLine3Start < 4*1000
+  EndWhile
+  
+  'LINE 4: FACE FRONT AND TURN BOTH SIDES
+  ChorusLine4Start = EV3.Time
+  Motor.StartSync(BothMot, 16, -16) ''alter for turn
+  'face the front
+  While EV3.Time - ChorusLine4Start < 1.5*1000
+  EndWhile
+  Motor.Stop(BothMot, "True")
+  While EV3.Time - ChorusLine4Start < 1.5*1000
+  EndWhile 
+  ''turn left and back
+  Motor.StartSync(BothMot, 34, -34) ''Alter for turn
+  While EV3.Time - ChorusLine4Start < 2*1000
+  EndWhile
+  Motor.Stop(BothMot, "True")
+  Motor.StartSync(BothMot, -34, 34)''Alt for turn
+  While EV3.Time - ChorusLine4Start < 2.5*1000
+  EndWhile                                                                                       
+  
+  Motor.Stop(BothMot, "True")
+   'turn right and back 
+  Motor.StartSync(BothMot, -34, 34) ''Alt for turn
+  While EV3.Time - ChorusLine4Start < 3*1000
+  EndWhile
+  Motor.Stop(BothMot, "True")
+  Motor.StartSync(BothMot, 34, -34)
+  While EV3.Time - ChorusLine4Start < 3.5*1000
+  EndWhile 
+  Motor.Stop(BothMot, "True")
+EndSub
+
+
+Sub ChorusEnd
+  '''Spinn on the spot
+  ChorusEndStart = EV3.Time
+  Motor.StartSync(BothMot, -25, 25) '''alter for turn
+  While EV3.Time - ChorusEndStart < 3.5*1000 
+  EndWhile
+  Motor.Stop(BothMot, "True")
+EndSub
+
+Sub Verse
+  
+  'LINE 1: MOVING BACKWARDS
+  VLine1Start = EV3.Time
+  Motor.Start(BothMot, Min)
+  While EV3.Time - VLine1Start < 4*1000 
+  EndWhile
+  Motor.Stop(BothMot, "True")
+  
+  'LINE 2: 90DEG RIGHT, Move to center
+  VLine2Start = EV3.Time
+  'Turning 90Deg left
+  Motor.StartSync(BothMot, -20, 20) '''alter for turn
+  While EV3.Time - VLine2Start < 1*1000 
+  EndWhile
+  Motor.Stop(BothMot, "True")
+  ''Move to center
+  Motor.Start(BothMot, Max)
+  While EV3.Time - VLine2Start < 4*1000 
+  EndWhile
+  Motor.Stop(BothMot, "True") 
+  
+  ''LINE 3: BACKWARDS, Face front
+  '''Backwards
+  VLine3Start = EV3.Time
+  Motor.Start(BothMot, Min)
+  While EV3.Time - VLine3Start < 3*1000 
+  EndWhile
+  Motor.Stop(BothMot, "True")
+  While EV3.Time - VLine3Start < 3*1000
+  EndWhile 
+  'Turning 90Deg left -> face front
+  Motor.StartSync(BothMot, 20, -20) '''alter for turn
+  While EV3.Time - VLine3Start < 4*1000 
+  EndWhile
+  Motor.Stop(BothMot, "True")
+  
+  ''LINE 4: Move forwards
+  VLine4Start = EV3.Time
+  Motor.Start(BothMot, Max)
+  While EV3.Time - VLine4Start < 4*1000 
+  EndWhile
+  Motor.Stop(BothMot, "True")
+  
+  ''LINE 5: Move forwards
+  VLine5Start = EV3.Time
+  Motor.Start(BothMot, Max)
+  While EV3.Time - VLine5Start < 4*1000 
+  EndWhile
+  Motor.Stop(BothMot, "True")
+  
+  ''LINE 6: ''90 deg R then center
+  VLine6Start = EV3.Time
+  'Turning 90Deg Right
+  Motor.StartSync(BothMot, -20, 20) '''alter for turn
+  While EV3.Time - VLine6Start < 1*1000 
+  EndWhile
+  Motor.Stop(BothMot, "True")
+  ''Move to center
+  Motor.Start(BothMot, Max)
+  While EV3.Time - VLine6Start < 4*1000 
+  EndWhile
+  Motor.Stop(BothMot, "True") 
+  
+  ''LINE 7: UNDO
+  VLine7Start = EV3.Time
+  Motor.Start(BothMot, Min)
+  While EV3.Time - VLine7Start < 3*1000 
+  EndWhile
+  Motor.Stop(BothMot, "True")
+  While EV3.Time - VLine7Start < 3*1000
+  EndWhile 
+  'Turning 90Deg left -> face front
+  Motor.StartSync(BothMot, 20, -20) '''alter for turn
+  While EV3.Time - VLine7Start < 4*1000 
+  EndWhile
+  Motor.Stop(BothMot, "True")
+  
+  ''LINE 8: TO ORIGINAL POSITION -> MOVE BACK
+  VLine8Start = EV3.Time
+  Motor.Start(BothMot, Min)
+  While EV3.Time - VLine8Start < 4*1000 
+  EndWhile
+  Motor.Stop(BothMot, "True")
+  
+EndSub
+
+
+Sub Hops
+  ''Hops 8 seconds -> Split to 2 sections
+  ''HOP 1 -> 4 seconds
+  HopLine1Start = EV3.Time
+  Motor.Start(HMot, HS)
+  While EV3.Time - HopLine1Start < 1*1000 
+  EndWhile
+  Motor.Stop(HMot, "True") 
+  While EV3.Time - HopLine1Start < 1*1000
+  EndWhile
+  'Hop back
+  Motor.Start(HMot, -HS)
+  While EV3.Time - HopLine1Start < 3*1000 
+  EndWhile
+  Motor.Stop(HMot, "True")
+  While EV3.Time - HopLine1Start < 3*1000
+  EndWhile
+  Motor.Start(HMot, HS)
+  While EV3.Time - HopLine1Start < 4*1000 
+  EndWhile
+  Motor.Stop(HMot, "True") 
+  While EV3.Time - HopLine1Start < 4*1000
+  EndWhile
+  ''HOp 2 -> 4 seconds
+   ''HOP 1
+  HopLine2Start = EV3.Time
+  Motor.Start(HMot, HS)
+  While EV3.Time - HopLine2Start < 1*1000 
+  EndWhile
+  Motor.Stop(HMot, "True") 
+  While EV3.Time - HopLine2Start < 1*1000
+  EndWhile
+  'Hop back
+  Motor.Start(HMot, -HS)
+  While EV3.Time - HopLine2Start < 3*1000 
+  EndWhile
+  Motor.Stop(HMot, "True")
+  While EV3.Time - HopLine2Start < 3*1000
+  EndWhile
+  Motor.Start(HMot, HS)
+  While EV3.Time - HopLine2Start < 4*1000 
+  EndWhile
+  Motor.Stop(HMot, "True") 
+  While EV3.Time - HopLine2Start < 4*1000
+  EndWhile
+  '''Wait for 8 seconds
+  HopLine3Start = EV3.Time
+  While EV3.Time - HopLine3Start < 8*1000
+  EndWhile
+EndSub
+
+Sub VHops
+  ''LINE 1: -> Backwards Nothing
+  VHLine1Start = EV3.Time
+  While EV3.Time - VHLine1Start < 4*1000
+  EndWhile
+  'LINE 2: 90DEG RIGHT, Move to center -> V H at the End
+  VHLine2Start = EV3.Time
+  While EV3.Time - VHLine2Start < 3.5*1000
+  EndWhile
+  'Quick Hop
+  Motor.Start(HMot, VHS)
+  While EV3.Time - VHLine2Start < 3.75*1000 
+  EndWhile
+  Motor.Stop(HMot, "True") 
+  'Hop back
+  Motor.Start(HMot, -VHS)
+  While EV3.Time - VHLine2Start < 4*1000 
+  EndWhile
+  Motor.Stop(HMot, "True")
+  ''LINE 3 : Nothing
+  VHLine3Start = EV3.Time
+  While EV3.Time - VHLine3Start < 4*1000
+  EndWhile
+  'Line 4: Nithing
+  VHLine4Start = EV3.Time
+  While EV3.Time - VHLine4Start < 4*1000
+  EndWhile
+  'LIne 5: Noithng
+  VHLine5Start = EV3.Time
+  While EV3.Time - VHLine5Start < 4*1000
+  EndWhile
+  'Line 6: same as line 2
+  VHLine6Start = EV3.Time
+  While EV3.Time - VHLine6Start < 3.5*1000
+  EndWhile
+  'Quick Hop
+  Motor.Start(HMot, VHS)
+  While EV3.Time - VHLine6Start < 3.75*1000 
+  EndWhile
+  Motor.Stop(HMot, "True") 
+  'Hop back
+  Motor.Start(HMot, -VHS)
+  While EV3.Time - VHLine6Start < 4*1000 
+  EndWhile
+  Motor.Stop(HMot, "True")
+  'LINE 7: NOTHING
+  VHLine7Start = EV3.Time
+  While EV3.Time - VHLine7Start < 4*1000
+  EndWhile
+  ''LINE 8: NOTHING
+  VHLine8Start = EV3.Time
+  While EV3.Time - VHLine8Start < 4*1000
+  EndWhile
+  EndSub
