@@ -1,0 +1,191 @@
+''Viarables-------------------------------------------------------------------------------------------------------
+'This CODE ASSUMES THE FOLLOWING: Nod forward B-> Nmin and C-> Nmax
+''Alter this only don't change anything else it has been litterely written out for you with timing
+NMax = 40
+NMin = -40
+
+''Second Assumption of this code is: Shake left is B-> SPOS, C-> SPOS, Right is B and C -> SNEG 
+'''Fix assumptions if assumptions is false, but timing has been put in and inserted. 
+SNEG = -35
+SPOS = 35
+
+''This is for starting via touch sensor, but we don't have touchsensor so delete when testing.
+''Just here to help Kerry with bluetooth. + Structure....
+Finished = "False" 
+While Finished = "False"
+  If  Sensor.ReadPercent(1) = 100 Then
+    Speaker.Tone(20, 1000, 500)
+    Finished = "True"
+  EndIf
+EndWhile
+
+
+
+
+'Dance Routine--------------------------------------------------------------------------------------------------------
+
+StartTime = EV3.Time
+Speaker.Tone(20, 1000, 50)
+'Chorus
+While EV3.Time - StartTime < 1*1000
+EndWhile
+Thread.Run = Chorus
+While EV3.Time - StartTime < 17*1000
+EndWhile
+Thread.Run = Chorus
+'Verse
+While EV3.Time - StartTime < 37*1000
+EndWhile
+Thread.Run = Verse
+'Chorus
+While EV3.Time - StartTime < 68 *1000
+EndWhile
+Thread.Run = Chorus
+While EV3.Time - StartTime < 84 *1000
+EndWhile
+Thread.Run = Chorus
+While EV3.Time < 200*1000
+EndWhile
+
+''Parts__________________________________________________________________________________________________________
+Sub Chorus 
+  'LINE 1: Nothing
+  ChorusLine1Start = EV3.Time
+  Motor.Stop("BC", "True")
+  While EV3.Time - ChorusLine1Start < 4*1000 
+  EndWhile
+ Motor.Stop("BC", "True")
+  
+  'LINE 2: Nothings
+  
+  ChorusLine2Start = EV3.Time
+  Motor.Stop("BC", "True")
+  While EV3.Time - ChorusLine2Start < 4*1000 
+  EndWhile
+
+  'LINE 3: NODS
+  ChorusLine3Start = EV3.Time
+  'Nod
+  Motor.StartSync("BC", NMin, NMax)
+  While EV3.Time - ChorusLine3Start < 0.5*1000 
+  EndWhile
+  Motor.Stop("BC", "False")
+    Motor.StartSync("BC", NMax, NMin)
+  While EV3.Time - ChorusLine3Start < 1*1000 
+  EndWhile
+  Motor.Stop("BC", "False")
+  'Nod
+  Motor.StartSync("BC", NMin, NMax)
+  While EV3.Time - ChorusLine3Start < 1.5*1000 
+  EndWhile
+  Motor.Stop("BC", "False")
+    Motor.StartSync("BC", NMax, NMin)
+  While EV3.Time - ChorusLine3Start < 2*1000 
+  EndWhile
+  Motor.Stop("AB", "False")
+  'Nod
+  Motor.StartSync("BC", NMin, NMax)
+  While EV3.Time - ChorusLine3Start < 2.5*1000 
+  EndWhile
+  Motor.Stop("BC", "False")
+    Motor.StartSync("BC", NMax, NMin)
+  While EV3.Time - ChorusLine3Start < 3*1000 
+  EndWhile
+  Motor.Stop("BC", "False")
+    'Nod
+  Motor.StartSync("BC", NMin, NMax)
+  While EV3.Time - ChorusLine3Start < 3.5*1000 
+  EndWhile
+  Motor.Stop("BC", "False")
+    Motor.StartSync("BC", NMax, NMin)
+  While EV3.Time - ChorusLine3Start < 4*1000 
+  EndWhile
+  Motor.Stop("BC", "True")
+  
+  
+  
+  'LINE 4: SHAKE
+  ChorusLine4Start = EV3.Time
+   While EV3.Time - ChorusLine3Start < 1.5*1000 
+  EndWhile
+  'Left
+  Motor.StartSync("BC", SNEG, SNEG)
+  While EV3.Time - ChorusLine4Start < 2*1000
+  EndWhile
+  Motor.Stop("BC", "True")
+  'Middle
+  Motor.StartSync("BC", SPOS SPOS)
+  While EV3.Time - ChorusLine4Start < 2.5*1000
+  EndWhile
+  Motor.Stop("BC", "True")
+  'Right
+  Motor.StartSync("BC", SNEG, SNEG)
+  While EV3.Time - ChorusLine4Start < 3*1000
+  EndWhile
+  Motor.Stop("BC", "True")
+  'Middle
+  Motor.StartSync("BC", SPOS, SPOS)
+  While EV3.Time - ChorusLine4Start < 3.5*1000
+  EndWhile
+  Motor.Stop("BC", "True")
+   While EV3.Time - ChorusLine4Start < 4*1000
+  EndWhile
+EndSub
+
+Sub Verse
+  'LINE 1: NONE
+  Line1Start = EV3.Time
+  Motor.Stop("BC", "True")
+  While EV3.Time - Line1Start < 4*1000
+  EndWhile
+  Motor.Stop("BC", "True")
+  'LINE 2 : NONE
+  Line2Start = EV3.Time
+  Motor.Stop("BC", "True")
+  While EV3.Time - Line1Start < 4*1000
+  EndWhile
+  Motor.Stop("BC", "True")
+   
+  'LINE 3: NONE
+  Line3Start = EV3.Time
+  Motor.Stop("BC", "True")
+  While EV3.Time - Line3Start < 4*1000
+  EndWhile
+  Motor.Stop("BC", "True")
+
+ 'LINE 4 : NONE
+  Line4Start = EV3.Time
+  Motor.Stop("BC", "True")
+  While EV3.Time - Line4Start < 4*1000
+  EndWhile
+  Motor.Stop("BC", "True")
+   
+  'LINE 5: NONE
+  
+  Line5Start = EV3.Time
+  Motor.Stop("BC", "True")
+  While EV3.Time - Line5Start < 4*1000
+  EndWhile
+  Motor.Stop("BC", "True")
+
+  
+  'LINE 6: NONE
+  Line6Start = EV3.Time
+  Motor.Stop("BC", "True")
+  While EV3.Time - Line6Start < 4*1000
+  EndWhile
+  Motor.Stop("BC", "True")
+
+  
+  'LINE 7: NONE
+  Line7Start = EV3.Time
+  Motor.Stop("BC", "True")
+  While EV3.Time - Line7Start < 6*1000
+  EndWhile
+  Motor.Stop("BC", "True")
+  
+ 
+EndSub
+
+
+'Subs-------------------------------------------------------------------------------------------------------------
