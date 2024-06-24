@@ -1,0 +1,628 @@
+'Brick Communications
+Mailbox.Connect("HEAD")
+MailID = Mailbox.Create("MBA")
+
+''Change motor speeds potential.
+'Motor Variables
+RightElbow = "A"
+RightShoulder = "B"
+LeftShoulder = "C"
+LeftElbow = "D"
+Shoulders = "CB"
+Elbows = "DA"
+
+'Callibration Estimates
+MaxRightElbow = 75
+MaxRightShoulder = 120
+MaxLeftShoulder = 130
+MaxLeftElbow =  90
+
+'''BLUETOOTH RECIEVE TO START
+Finished = "False" 
+While Finished = "False"
+  If Mailbox.IsAvailable(MailID)  Then
+    If Mailbox.Receive(MailID) = "Start" Then
+      Finished = "True"
+    EndIf
+  ElseIf  Sensor.ReadPercent(2) = 100 Then
+    Finished = "True"
+  EndIf
+EndWhile
+
+
+Sub Arm
+  Motor.Move("C", 40, 100, "True")
+  Program.Delay(400)
+   'Motor.Move("B", -30,  120, "True")
+EndSub
+
+Sub Elbow
+  Motor.Move("D", 30, 100, "True")
+  Program.Delay(400)
+  Motor.Move("D", -20, 50, "True")
+  Program.Delay(400)
+  Motor.Move("D", 20, 50, "True")
+EndSub
+
+Sub Elbow2  
+  Motor.Move("D", -20, 55, "True")
+  Program.Delay(400)
+  Motor.Move("D", 20, 55, "True")
+EndSub
+
+
+StartTime = EV3.Time
+Speaker.Tone(20, 1000, 50)
+'Chorus
+While EV3.Time - StartTime < 1*1000
+EndWhile
+Thread.Run = Chorus
+While EV3.Time - StartTime < 17*1000
+EndWhile
+Thread.Run = Chorus
+'Verse
+While EV3.Time - StartTime < 37*1000
+EndWhile
+Thread.Run = VerseElbow
+Thread.Run = VerseShoulder
+'Chorus
+While EV3.Time - StartTime < 67.5*1000
+EndWhile
+Thread.Run = Chorus
+While EV3.Time - StartTime < 83.5*1000
+EndWhile
+Thread.Run = Chorus
+Motor.Move("B", 40, -50, "True")
+While EV3.Time - StartTime < 100*1000
+  While Sensor.ReadPercent(4) <> 100
+  EndWhile
+  Thread.Run = Arm
+  Thread.Run = Elbow
+  While "True"
+    If Sensor.ReadPercent(4) = 100 Then
+     Elbow2()
+    EndIf
+  EndWhile
+EndWhile
+While EV3.Time - StartTime < 1000*1000
+EndWhile
+
+
+'SUB PROGRAMS
+Sub Chorus
+  'LINE 1: BOTH ARMS UP
+  ChorusLine1Start = EV3.Time
+  Motor.ResetCount(LeftShoulder)
+  Motor.Start(Shoulders, 15)
+  Rotations1 = Motor.GetCount(LeftShoulder)
+  While EV3.Time - ChorusLine1Start < 4*1000 And Rotations1 < MaxRightShoulder
+    Rotations1 = Motor.GetCount(RightShoulder)
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - ChorusLine1Start < 4*1000
+  EndWhile
+  'LINE 2: ALTERNATING ARMS
+  ChorusLine2Start = EV3.Time
+  '1/8 alternations - left down
+  Motor.ResetCount(LeftShoulder)
+  Motor.Start(LeftShoulder, -15)
+  Rotations2 = Math.Abs(Motor.GetCount(LeftShoulder))
+  While EV3.Time - ChorusLine2Start < 0.5*1000 And Rotations2 < 10
+    Rotations2 = Math.Abs(Motor.GetCount(LeftShoulder))
+  EndWhile
+  Motor.Stop(LeftShoulder, "True")
+  While EV3.Time - ChorusLine2Start < 0.5*1000
+  EndWhile
+  '2/8 alternations - left up, right down
+  Motor.ResetCount(LeftShoulder)
+  Motor.StartSync(Shoulders, 30, -15)
+  Rotations = Motor.GetCount(LeftShoulder)
+  While EV3.Time - ChorusLine2Start < 1*1000 And Rotations < Rotations2
+    Rotations = Motor.GetCount(LeftShoulder)
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - ChorusLine2Start < 1*1000
+  EndWhile
+  '3/8 alternations - left down, right up
+  Motor.ResetCount(RightShoulder)
+  Motor.StartSync(Shoulders, -15, 30)
+  Rotations = Motor.GetCount(RightShoulder)
+  While EV3.Time - ChorusLine2Start < 1.5*1000 And Rotations < Rotations2
+    Rotations = Motor.GetCount(RightShoulder)
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - ChorusLine2Start <1.5*1000
+  EndWhile
+  '4/8 alternations - left up, right down
+  Motor.ResetCount(LeftShoulder)
+  Motor.StartSync(Shoulders, 30, -15)
+  Rotations = Motor.GetCount(LeftShoulder)
+  While EV3.Time - ChorusLine2Start < 2*1000 And Rotations < Rotations2
+    Rotations = Motor.GetCount(LeftShoulder)
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - ChorusLine2Start < 2*1000
+  EndWhile
+  '5/8 alternations - left down, right up
+  Motor.ResetCount(RightShoulder)
+  Motor.StartSync(Shoulders, -15, 30)
+  Rotations = Motor.GetCount(RightShoulder)
+  While EV3.Time - ChorusLine2Start < 2.5*1000 And Rotations < Rotations2
+    Rotations = Motor.GetCount(RightShoulder)
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - ChorusLine2Start < 2.5*1000
+  EndWhile
+  '6/8 alternations - left up, right down
+  Motor.ResetCount(LeftShoulder)
+  Motor.StartSync(Shoulders, 30, -15)
+  Rotations = Motor.GetCount(LeftShoulder)
+  While EV3.Time - ChorusLine2Start < 3*1000 And Rotations < Rotations2
+    Rotations = Motor.GetCount(LeftShoulder)
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - ChorusLine2Start < 3*1000
+  EndWhile
+  '7/8 alternations - left down, right up
+  Motor.ResetCount(RightShoulder)
+  Motor.StartSync(Shoulders, -15, 30)
+  Rotations = Motor.GetCount(RightShoulder)
+  While EV3.Time - ChorusLine2Start < 3.5*1000 And Rotations < Rotations2
+    Rotations = Motor.GetCount(RightShoulder)
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - ChorusLine2Start < 3.5*1000
+  EndWhile
+  '8/8 alternations - left up, right down
+  Motor.ResetCount(LeftShoulder)
+  Motor.StartSync(Shoulders, 30, -15)
+  Rotations = Motor.GetCount(LeftShoulder)
+  While EV3.Time - ChorusLine2Start < 4*1000 And Rotations < Rotations2
+    Rotations = Motor.GetCount(LeftShoulder)
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - ChorusLine2Start < 4*1000
+  EndWhile
+  'LINE 3: DROP RIGHT ARM
+  ChorusLine3Start = EV3.Time
+  Motor.ResetCount(RightShoulder)
+  Motor.Start(RightShoulder, -50)
+  Rotations3 = Math.Abs(Motor.GetCount(RightShoulder))
+  While EV3.Time - ChorusLine3Start < 1*1000 And Rotations3 < Rotations1+15
+    Rotations3 = Math.Abs(Motor.GetCount(RightShoulder))
+  EndWhile
+  Motor.Stop(RightShoulder, "True")
+  While EV3.Time - ChorusLine3Start < 4*1000
+  EndWhile
+  'LINE 4: DROP LEFT ARM, THEN BEND ELBOWS 
+  ChorusLine4Start = EV3.Time
+  'drop left arm
+  Motor.ResetCount(LeftShoulder)
+  Motor.Start(Shoulders, -50)
+  Rotations4a = Math.Abs(Motor.GetCount(LeftShoulder))
+  While EV3.Time - ChorusLine4Start < 1*1000
+    Rotations4a = Math.Abs(Motor.GetCount(LeftShoulder))
+  EndWhile
+  Motor.Stop(LeftShoulder, "True")
+  While EV3.Time - ChorusLine4Start < 1*1000
+  EndWhile
+  'bend elbow up
+  Motor.ResetCount(RightElbow)
+  Motor.StartSync(Elbows, 40, -40)
+  Rotations4b = Math.Abs(Motor.GetCount(RightElbow))
+  While EV3.Time - ChorusLine4Start < 1.5*1000 And Rotations4b < 95
+    Rotations4b = Math.Abs(Motor.GetCount(RightElbow))
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.Time - ChorusLine4Start < 3.5*1000
+  EndWhile
+  'bend elbow down
+  Motor.ResetCount(LeftElbow)
+  Motor.StartSync(Elbows, -40, 40)
+  Rotations4c = Math.Abs(Motor.GetCount(LeftElbow))
+  While EV3.Time - ChorusLine4Start < 4*1000 And Rotations4c < Rotations4b
+    Rotations4c = Math.Abs(Motor.GetCount(LeftElbow))
+  EndWhile
+  Motor.Stop(Elbows, "True")
+EndSub
+
+
+Sub VerseElbow
+  'LINE 1: UP, DOWN, UP, DOWN
+  VerseElbowLine1Start = EV3.Time
+  'up
+  Motor.ResetCount(LeftElbow)
+  Motor.StartSync(Elbows, 20, -20)
+  Rotations1 = Math.Abs(Motor.GetCount(LeftElbow))
+  While EV3.Time - VerseElbowLine1Start < 1*1000 And Rotations1 < 40
+    Rotations1 = Math.Abs(Motor.GetCount(LeftElbow))
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.Time - VerseElbowLine1Start < 1*1000
+  EndWhile
+  'down
+  Motor.ResetCount(LeftElbow)
+  Motor.StartSync(Elbows, -20, 20)
+  Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  While EV3.Time -VerseElbowLine1Start < 2*1000 And Rotations < Rotations1
+    Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.Time - VerseElbowLine1Start < 2*1000
+  EndWhile
+  'up
+  Motor.ResetCount(LeftElbow)
+  Motor.StartSync(Elbows, 20, -20)
+  Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  While EV3.Time - VerseElbowLine1Start < 3*1000 And Rotations < Rotations1
+    Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.Time - VerseElbowLine1Start < 3*1000
+  EndWhile
+  'down
+  Motor.ResetCount(LeftElbow)
+  Motor.StartSync(Elbows, -20, 20)
+  Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  While EV3.Time - VerseElbowLine1Start < 4*1000 And Rotations < Rotations1
+    Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.Time - VerseElbowLine1Start < 8*1000
+  EndWhile
+  
+  'LINE 2: NOTHING
+  
+  'LINE 3: UP, DOWN, UP, DOWN
+  VerseElbowLine3Start = EV3.Time
+  'up
+  Motor.ResetCount(RightElbow)
+  Motor.Start(RightElbow, 20)
+  Rotations3 = Math.Abs(Motor.GetCount(RightElbow))
+  While EV3.Time - VerseElbowLine3Start < 1*1000 And Rotations3 < 100
+    Rotations3 = Math.Abs(Motor.GetCount(RightElbow))
+  EndWhile
+  Motor.Stop(RightElbow, "True")
+  While EV3.Time - VerseElbowLine3Start < 1*1000
+  EndWhile
+  'down
+  Motor.ResetCount(LeftElbow)
+  Motor.Start(Elbows, -20)
+  Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  While EV3.Time - VerseElbowLine3Start < 2*1000 And Rotations < Rotations3
+    Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.Time - VerseElbowLine3Start < 2*1000
+  EndWhile
+  'up
+  Motor.ResetCount(LeftElbow)
+  Motor.Start(Elbows, 20)
+  Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  While EV3.Time - VerseElbowLine3Start < 3*1000 And Rotations < Rotations3
+    Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.Time - VerseElbowLine3Start < 3*1000
+  EndWhile
+  'down
+  Motor.ResetCount(LeftElbow)
+  Motor.Start(Elbows, -20)
+  Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  While EV3.Time - VerseElbowLine3Start < 4*1000 And Rotations < Rotations3
+    Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.Time - VerseElbowLine3Start < 4*1000
+  EndWhile
+  
+  'LINE 4: UP, DOWN, UP, DOWN
+  VerseElbowLine4Start = EV3.Time
+  'up
+  Motor.ResetCount(LeftElbow)
+  Motor.Start(Elbows, 20)
+  Rotations4 = Math.Abs(Motor.GetCount(LeftElbow))
+  While EV3.Time - VerseElbowLine4Start < 1*1000 And Rotations4 < 100
+    Rotations4 = Math.Abs(Motor.GetCount(LeftElbow))
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.Time - VerseElbowLine4Start < 1*1000
+  EndWhile
+  'down
+  Motor.ResetCount(LeftElbow)
+  Motor.Start(Elbows, -20)
+  Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  While EV3.Time - VerseElbowLine4Start < 2*1000 And Rotations < Rotations4
+    Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.Time - VerseElbowLine4Start < 2*1000
+  EndWhile
+  'up
+  Motor.ResetCount(LeftElbow)
+  Motor.Start(Elbows, 20)
+  Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  While EV3.Time - VerseElbowLine4Start < 3*1000 And Rotations < Rotations4
+    Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.Time - VerseElbowLine4Start < 3*1000
+  EndWhile
+  'down
+  Motor.ResetCount(RightElbow)
+  Motor.Start(RightElbow, -20)
+  Rotations = Math.Abs(Motor.GetCount(RightElbow))
+  While EV3.Time - VerseElbowLine4Start < 4*1000 And Rotations < Rotations4
+    Rotations = Math.Abs(Motor.GetCount(RightElbow))
+  EndWhile
+  Motor.Stop(RightElbow, "True")
+  While EV3.Time - VerseElbowLine4Start < 8*1000
+  EndWhile
+  
+  'LINE 5: NOTHING
+  
+  'LINE 6: UP, DOWN, UP, DOWN
+  VerseElbowLine6Start = EV3.Time
+  'up
+  Motor.ResetCount(LeftElbow)
+  Motor.StartSync(Elbows, -20, 20)
+  Rotations6 = Math.Abs(Motor.GetCount(LeftElbow))
+  While EV3.Time - VerseElbowLine1Start < 1*1000 And Rotations6 < 50
+    Rotations1 = Math.Abs(Motor.GetCount(LeftElbow))
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.Time - VerseElbowLine6Start < 1*1000
+  EndWhile
+  'down
+  Motor.ResetCount(LeftElbow)
+  Motor.StartSync(Elbows, 20, -20)
+  Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  While EV3.Time -VerseElbowLine6Start < 2*1000 And Rotations < Rotations6
+    Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.Time - VerseElbowLine6Start < 2*1000
+  EndWhile
+  'up
+  Motor.ResetCount(LeftElbow)
+  Motor.StartSync(Elbows, -20, 20)
+  Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  While EV3.Time - VerseElbowLine6Start < 3*1000 And Rotations < Rotations6
+    Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.Time - VerseElbowLine6Start < 3*1000
+  EndWhile
+  'down
+  Motor.ResetCount(LeftElbow)
+  Motor.StartSync(Elbows, 20, -20)
+  Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  While EV3.Time - VerseElbowLine6Start < 4*1000 And Rotations < Rotations6
+    Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.Time - VerseElbowLine6Start < 4*1000
+  EndWhile
+  
+  'LINE 7: UP, DOWN, NOTHING, UP-DOWN
+  VerseElbowLine7Start = EV3.Time
+  'up
+  Motor.ResetCount(LeftElbow)
+  Motor.StartSync(Elbows, 10, -10)
+  Rotations7 = Math.Abs(Motor.GetCount(LeftElbow))
+  While EV3.Time - VerseElbowLine7Start < 1*1500 And Rotations7 < 95
+    Rotations7 = Math.Abs(Motor.GetCount(LeftElbow))
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.TIME - VerseElbowLine7Start < 1.5*1000
+  EndWhile
+  'down
+  Motor.ResetCount(LeftElbow)
+  Motor.StartSync(Elbows, -10, 10)
+  Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  While EV3.Time - VerseElbowLine7Start < 3*1000 And Rotations < Rotations7
+    Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.Time - VerseElbowLine7Start < 4*1000
+  EndWhile
+  'up-down
+  Motor.ResetCount(LeftElbow)
+  Motor.StartSync(Elbows, 20, -20)
+  Rotations7a = Math.Abs(Motor.GetCount(LeftElbow))
+  While EV3.Time - VerseElbowLine7Start < 4.5*1000 And Rotations7a < 50
+    Rotations7a = Math.Abs(Motor.GetCount(LeftElbow))
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.Time - VerseElbowLine7Start < 4.5*1000
+  EndWhile
+  Motor.ResetCount(LeftElbow)
+  Motor.StartSync(Elbows, -20, 20)
+  Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  While EV3.Time - VerseElbowLine7Start < 5*1000 And Rotations < Rotations7a
+    Rotations = Math.Abs(Motor.GetCount(LeftElbow))
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.Time - VerseElbowLine7Start < 5*1000
+  EndWhile
+EndSub
+
+Sub VerseShoulder
+  'LINE 1: UP, DOWN, UP, DOWN
+  VerseShoulderLine1Start = EV3.Time
+  'up
+  Motor.ResetCount(LeftShoulder)
+  Motor.Start(Shoulders, 20)
+  RotationsA = Motor.GetCount(LeftShoulder)
+  While EV3.Time - VerseShoulderLine1Start < 1*1000 And RotationsA < MaxLeftShoulder*0.75
+    RotationsA = Motor.GetCount(LeftShoulder)
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - VerseShoulderLine1Start < 1*1000
+  EndWhile
+  'down
+  Motor.ResetCount(LeftShoulder)
+  Motor.Start(Shoulders, -20)
+  rotations = Math.Abs(Motor.GetCount(LeftShoulder))
+  While EV3.Time - VerseShoulderLine1Start < 2*1000 And rotations < RotationsA
+    rotations = Math.Abs(Motor.GetCount(LeftShoulder))
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - VerseShoulderLine1Start < 2*1000
+  EndWhile
+  'up
+  Motor.ResetCount(LeftShoulder)
+  Motor.Start(Shoulders, 20)
+  rotations = Motor.GetCount(LeftShoulder)
+  While EV3.Time - VerseShoulderLine1Start < 3*1000 And rotations < RotationsA
+    rotations = Motor.GetCount(LeftShoulder)
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - VerseShoulderLine1Start < 3*1000
+  EndWhile
+  'down
+  Motor.ResetCount(LeftShoulder)
+  Motor.Start(Shoulders, -20)
+  rotations = Math.Abs(Motor.GetCount(LeftShoulder))
+  While EV3.Time - VerseShoulderLine1Start < 4*1000 And rotations < RotationsA
+    rotations = Math.Abs(Motor.GetCount(LeftShoulder))
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - VerseShoulderLine1Start < 4*1000
+  EndWhile
+  
+  'LINE 2: UP, DOWN
+  VerseShoulderLine2Start = EV3.Time
+  'up
+  Motor.ResetCount(LeftShoulder)
+  Motor.Start(Shoulders, 20)
+  RotationsB = Motor.GetCount(LeftShoulder)
+  While EV3.Time - VerseShoulderLine2Start < 2*1000 And RotationsB < MaxLeftShoulder
+    RotationsB = Motor.GetCount(LeftShoulder)
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - VerseShoulderLine2Start < 2*1000
+  EndWhile
+  'down
+  Motor.ResetCount(LeftShoulder)
+  Motor.Start(Shoulders, -20)
+  rotations = Math.Abs(Motor.GetCount(LeftShoulder))
+  While EV3.Time - VerseShoulderLine2Start < 4*1000 And rotations < RotationsB
+    rotations = Math.Abs(Motor.GetCount(LeftShoulder))
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - VerseShoulderLine2Start < 12*1000
+  EndWhile
+  
+  'LINE 3: NOTHING
+  'LINE 4: NOTHING
+  
+  'LINE 5: UP, DOWN
+  VerseShoulderLine5Start = EV3.Time
+  'up
+  Motor.ResetCount(LeftShoulder)
+  Motor.Start(Shoulders, 20)
+  RotationsC = Motor.GetCount(LeftShoulder)
+  While EV3.Time - VerseShoulderLine5Start < 2*1000 And RotationsC < MaxLeftShoulder
+    RotationsC = Motor.GetCount(LeftShoulder)
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - VerseShoulderLine5Start < 2*1000
+  EndWhile
+  'down
+  Motor.ResetCount(LeftShoulder)
+  Motor.Start(Shoulders, -20)
+  rotations = Math.Abs(Motor.GetCount(LeftShoulder))
+  While EV3.Time - VerseShoulderLine5Start < 4*1000 And rotations < RotationsC
+    rotations = Math.Abs(Motor.GetCount(LeftShoulder))
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - VerseShoulderLine5Start < 4*1000
+  EndWhile
+  
+  'LINE 6: UP, DOWN, UP, DOWN
+  VerseShoulderLine6Start = EV3.Time
+  'up
+  Motor.ResetCount(LeftShoulder)
+  Motor.Start(Shoulders, 20)
+  RotationsA = Motor.GetCount(LeftShoulder)
+  While EV3.Time - VerseShoulderLine6Start < 1*1000 And RotationsA < MaxLeftShoulder*0.75
+    RotationsA = Motor.GetCount(LeftShoulder)
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - VerseShoulderLine6Start < 1*1000
+  EndWhile
+  'down
+  Motor.ResetCount(LeftShoulder)
+  Motor.Start(Shoulders, -20)
+  rotations = Math.Abs(Motor.GetCount(LeftShoulder))
+  While EV3.Time - VerseShoulderLine1Start < 2*1000 And rotations < RotationsA
+    rotations = Math.Abs(Motor.GetCount(LeftShoulder))
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - VerseShoulderLine6Start < 2*1000
+  EndWhile
+  'up
+  Motor.ResetCount(LeftShoulder)
+  Motor.Start(Shoulders, 20)
+  rotations = Motor.GetCount(LeftShoulder)
+  While EV3.Time - VerseShoulderLine6Start < 3*1000 And rotations < RotationsA
+    rotations = Motor.GetCount(LeftShoulder)
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - VerseShoulderLine6Start < 3*1000
+  EndWhile
+  'down
+  Motor.ResetCount(LeftShoulder)
+  Motor.Start(Shoulders, -20)
+  rotations = Math.Abs(Motor.GetCount(LeftShoulder))
+  While EV3.Time - VerseShoulderLine6Start < 4*1000 And rotations < RotationsA
+    rotations = Math.Abs(Motor.GetCount(LeftShoulder))
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - VerseShoulderLine6Start < 4*1000
+  EndWhile
+  
+  'LINE 7: UP, DOWN, UP, DOWN
+  VerseShoulderLine7Start = EV3.Time
+  'up
+  Motor.ResetCount(LeftShoulder)
+  Motor.Start(Shoulders, 20)
+  RotationsD = Motor.GetCount(LeftShoulder)
+  While EV3.Time - VerseShoulderLine7Start < 1.5*1000 And RotationsD < MaxLeftShoulder
+    RotationsD = Motor.GetCount(LeftShoulder)
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - VerseShoulderLine7Start < 1.5*1000
+  EndWhile
+  'down
+  Motor.ResetCount(LeftShoulder)
+  Motor.Start(Shoulders, -1)
+  rotations = Motor.GetCount(LeftShoulder)
+  While EV3.Time - VerseShoulderLine7Start < 3*1000 And rotations < RotationsD
+    rotations = Motor.GetCount(LeftShoulder)
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - VerseShoulderLine7Start < 3*1000
+  EndWhile
+  'up
+  Motor.ResetCount(LeftShoulder)
+  Motor.Start(Shoulders, 20)
+  rotations = Motor.GetCount(LeftShoulder)
+  While EV3.Time - VerseShoulderLine7Start < 4*1000 And rotations < RotationsD
+    rotations = Motor.GetCount(LeftShoulder)
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - VerseShoulderLine7Start < 4*1000
+  EndWhile
+  'down
+  Motor.ResetCount(LeftShoulder)
+  Motor.Start(Shoulders, -10)
+  rotations = Motor.GetCount(LeftShoulder)
+  While EV3.Time - VerseShoulderLine7Start < 5*1000 And rotations < RotationsD
+    rotations = Motor.GetCount(LeftShoulder)
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - VerseShoulderLine7Start < 5*1000
+  EndWhile
+EndSub
