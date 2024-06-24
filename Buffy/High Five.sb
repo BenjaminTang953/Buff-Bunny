@@ -1,0 +1,33 @@
+
+'''UNLTRASONIC VERSION -> NEEDED FOR POINTS
+
+
+While Sensor.ReadRawValue(4,0) <= 60
+EndWhile
+Thread.Run = Arm
+Thread.Run = Elbow
+While "True"
+  If Sensor.ReadRawValue(4,0) <= 60 Then
+    Elbow2()
+  EndIf
+EndWhile
+
+Sub Arm
+  Motor.Move("C", 40, 100, "True")
+  Program.Delay(400)
+   'Motor.Move("B", -30,  120, "True")
+EndSub
+
+Sub Elbow
+  Motor.Move("D", -30, 100, "True")
+  Program.Delay(400)
+  Motor.Move("D", 20, 50, "True")
+  Program.Delay(400)
+  Motor.Move("D", -20, 50, "True")
+EndSub
+
+Sub Elbow2  
+  Motor.Move("D", 20, 55, "True")
+  Program.Delay(400)
+  Motor.Move("D", -20, 55, "True")
+EndSub
