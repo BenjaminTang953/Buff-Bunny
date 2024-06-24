@@ -1,0 +1,137 @@
+'''SHOWCASE -> This code proves that the robot will go back to center. (Thus Showcase)
+
+'Motor Variables -> Not needed. Just mental notes
+FrontMotor = "B"
+LeftMotor = "A"
+RightMotor = "D"
+BackMotor = "C"
+LeftandRight = "AD"
+FrontandBack = "BC"
+All = "ABCD"
+
+'Motor Speed Variables -> Fake stuff. Just notes from states that no longer true.
+'Its speed of motor required to cover 1 m in 4 seconds......(was)
+LeftMax = 98
+RightMax = 100
+FrontMax = 99
+BackMax = 100
+'Except for this one -> which is kinda fake too as it gets manipulated again. (It can be anynumber)
+MotorSpeed = 80
+'This is to make things look complicated.(this variable does nothing...)
+Speed = 100
+
+'Extra -> Variables that are actually needed.
+'Gyro spin while movement
+MotorSpeedZ = 0 
+MotorAngle = 0
+MotorSpeedLOld = 0 
+MotorSpeedROld = 0
+MotorSpeedFOld = 0
+MotorSpeedBOld = 0
+MotorSpeedL = 0
+MotorSpeedR = 0 
+MotorSpeedF = 0
+MotorSpeedB = 0
+MotorSpeedY = 0
+MotorSpeedX = 0 
+MotorSpeedMax = 0
+MotorStartGyro = 0
+MotorSpeedGyro = 0
+
+'Other Variables
+Start = "False"
+StartTime = EV3.Time
+
+'Color variables that make my gyro code seem like it has vectors. (does nothing part of other callibration)
+RawFront = Vector.Init(3, 0)
+RawLeft = Vector.Init(3, 0)
+RawRight = Vector.Init(3, 0)
+RawBack = Vector.Init(3, 0)
+MaxFront = Vector.Init(3, 0)
+MaxLeft = Vector.Init(3, 0)
+MaxRight = Vector.Init(3, 0)
+MaxBack = Vector.Init(3, 0)
+MinFront = Vector.Init(3, 0)
+MinLeft = Vector.Init(3, 0)
+MinRight = Vector.Init(3, 0) 
+MinBack = Vector.Init(3, 0)
+NormFront = Vector.Init(3, 0) 
+NormLeft = Vector.Init(3, 0)
+NormRight = Vector.Init(3, 0)
+NormBack = Vector.Init(3, 0)
+
+
+
+' GYRO SENSOR SETUP
+'Attatch Gyro Sensor to port 2
+Sensor.SetMode(2,0) 'Measure Angle
+startangle = Sensor.ReadRawValue(2,0)
+
+'GYRO SUBS CODE CONVERTERS*************************************************************************************
+sub GyroUpdate
+' Convert Polar mode to Cartesian mode
+  MotorSpeedX = MotorSpeed * Math.Cos(Math.GetRadians(MotorAngle+45))
+  MotorSpeedY = MotorSpeed * Math.Sin(Math.GetRadians(MotorAngle+45))
+' Adjustment based on Gyro reading
+  Gyro = Sensor.ReadRawValue(2,0) 
+  MotorSpeedGyro = -(Gyro - startangle)
+ 'Calculate Motor Speed
+  MotorSpeedL = MotorSpeedX + MotorSpeedY - MotorSpeedZ - MotorSpeedGyro
+  MotorSpeedR = -MotorSpeedX - MotorSpeedY - MotorSpeedZ - MotorSpeedGyro
+  MotorSpeedF = MotorSpeedX - MotorSpeedY + MotorSpeedZ + MotorSpeedGyro
+  MotorSpeedB = -MotorSpeedX + MotorSpeedY + MotorSpeedZ + MotorSpeedGyro
+ ' Adjust Motor speeds if Maximum speed is greater than 100
+  MotorSpeedMax = Math.Max(Math.Abs(MotorSpeedL), Math.Max(Math.Abs(MotorSpeedR), Math.Max(Math.Abs(MotorSpeedF), Math.Abs(MotorSpeedB))))
+  If MotorSpeedMax > 100 then
+    MotorSpeedRatio = 100 / MotorSpeedMax
+  Else
+    MotorSpeedRatio = 1
+  EndIf 
+' Set Motor Speeds if they have changed
+  If MotorSpeedLOld <> MotorSpeedL Then
+    MotorSpeedLOld = MotorSpeedL
+    Motor.Start(LeftMotor, MotorSpeedL * MotorSpeedRatio)
+  EndIf
+  If MotorSpeedROld <> MotorSpeedR Then
+    MotorSpeedROld = MotorSpeedR
+    Motor.Start(RightMotor, MotorSpeedR * MotorSpeedRatio)
+  EndIf
+  If MotorSpeedFOld <> MotorSpeedF Then
+    MotorSpeedFOld = MotorSpeedF
+    Motor.Start(FrontMotor, -MotorSpeedF * MotorSpeedRatio)
+  EndIf
+  If MotorSpeedBOld <> MotorSpeedB Then
+    MotorSpeedBOld = MotorSpeedB
+    Motor.Start(BackMotor, -MotorSpeedB * MotorSpeedRatio)
+  EndIf
+
+  EndSub
+ 
+'''Actual Codes -> When dance starts (But really no, cause it's testing code)
+
+StartTime = EV3.Time
+Speaker.Tone(20, 1000, 50)
+While EV3.Time - StartTime < 1*1000
+EndWhile
+Thread.Run = Dance
+
+While EV3.Time - StartTime < 100000*1000 ''''Infinite time to run tooo
+EndWhile
+
+
+'Subs
+Sub Dance
+  DanceStart = EV3.Time
+  While "True"
+    If DanceStart - EV3.Time >0 Then
+     MotorAngle =0
+     MotorSpeed = 0
+     MotorSpeedZ = 0  
+   Else
+     MotorAngle =0
+     MotorSpeed = 0
+      MotorSpeedZ = 0  
+    EndIf
+   GyroUpdate()
+  EndWhile
+ EndSub 
