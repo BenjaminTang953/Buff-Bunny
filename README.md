@@ -19,7 +19,7 @@ Superteam Performance: (TBD)
 
 Nationals Performance: (TBD)
 
-States Performance: (TBD)
+
 
 📝 About the Team
 This is our team's first season in the onstage catergory. So we are newbies. We had other teammates but for RoboCup, our team was formed by: Kerry, Emma, Ben, Riley, Taryn and our mentor was Donna Hatton. I will not mention everyone that helped in any way to we go and participate in RoboCup because it will take a long list but...
