@@ -1,0 +1,160 @@
+'Arms Calibration Test
+
+'Defining Motors
+RightElbow = "A"
+RightShoulder = "B"
+LeftShoulder = "C"
+LeftElbow = "D"
+
+'Defining Other Variables
+TestPower = 30 'The speed that the motors will rotate at during their calibration
+
+'Calibration for Right Elbow************************************************************************************************************************************
+Motor.Start(RightElbow, -TestPower) 'Start rotating right elbow backwards
+TestMotor = RightElbow
+Calibration() 'Run calibration sub program
+Max_RightElbow = Motor.GetCount(TestMotor)
+
+'Normalising Right Elbow
+Deg_RightElbow = Motor.GetCount(RightElbow)
+N_RightElbow = Deg_rightElbow/Max_RightElbow*100-50
+Norm_RightElbow = N_RightElbow/50*100
+
+'Right Elbow in Rest Position
+Motor.Start(RightElbow, -TestPower) 'Start rotating the right elbow backwards
+Deg_RightElbow = Motor.GetCount(RightElbow)
+While Norm_RightElbow > 0
+  NormaliseRightElbow()
+EndWhile
+Motor.Stop(RightElbow, "True") 'Stop when the motor reaches rest position (Norm_RightElbow = 0)
+Program.Delay(1000)
+
+'Calibration for Right Shoulder*********************************************************************************************************************************
+Motor.Start(RightShoulder, -TestPower) 'Start rotating the right shoulder backwards
+TestMotor = RightShoulder
+Calibration() 'Run calibration sub program
+Max_RightShoulder = Motor.GetCount(TestMotor)
+
+'Normalising Right Shoulder
+Deg_RightShoulder = Motor.GetCount(RightShoulder)
+N_RightShoulder = Deg_RightShoulder/Max_RightShoulder*100-35
+Norm_RightShoulder = N_RightShoulder/65*100
+
+'Right Shoulder in Rest Position
+Motor.Start(RightShoulder, -TestPower) 'Start rotating shoulder backwards
+Deg_RightShoulder = Motor.GetCount(RightShoulder)
+While Norm_RightShoulder > 0
+  NormaliseRightShoulder()
+EndWhile
+Motor.Stop(RightShoulder, "True") 'Stop when motor reaches rest position (Norm_RightShoulder = 0)
+Program.Delay(1000)
+
+'Calibration for Left Shoulder**********************************************************************************************************************************
+Motor.Start(LeftShoulder, -TestPower) 'Start rotating left shoulder backwards
+TestMotor = LeftShoulder
+Calibration() 'Run calibration sub program
+Max_LeftShoulder = Motor.GetCount(TestMotor)
+
+'Normalising Left Shoulder
+Deg_LeftShoulder = Motor.GetCount(LeftShoulder)
+N_LeftShoulder = Deg_LeftShoulder/Max_LeftShoulder*100-35
+Norm_LeftShoulder = N_LeftShoulder/65*100
+
+'Left Shoulder in Rest Position
+Motor.Start(LeftShoulder, -TestPower) 'Start rotating shoulder backwards
+Deg_LeftShoulder = Motor.GetCount(LeftShoulder)
+While Norm_LeftShoulder > 0
+  NormaliseLeftShoulder()
+EndWhile
+Motor.Stop(LeftShoulder, "True") 'Stop when motor reaches rest position (Norm_LeftShoulder = 0)
+Program.Delay(1000)
+
+'Calibration for Left Elbow*************************************************************************************************************************************
+Motor.Start(LeftElbow, TestPower) 'Start rotating left elbow backwards
+TestMotor = LeftElbow
+LECalibration() 'Run left elbow calibration sub program
+Max_LeftElbow = Motor.GetCount(TestMotor)
+
+'Normalising Left Elbow
+Deg_LeftElbow = Motor.GetCount(LeftElbow)
+N_LeftElbow = Deg_LeftElbow/Max_LeftElbow*100-50
+Norm_LeftElbow = N_LeftElbow/50*100
+
+'Left Elbow in Rest Position
+Motor.Start(LeftElbow, TestPower) 'Start rotating elbow backwards
+Deg_LeftElbow = Motor.GetCount(LeftShoulder)
+While Norm_LeftElbow > 0
+  NormaliseLeftElbow()
+EndWhile
+Motor.Stop(LeftElbow, "True") 'Stop when motor reaches rest position (Norm_LeftElbow = 0)
+Program.Delay(1000)
+
+
+'Sub Programs****************************************************************************************************************************************************************
+
+Sub TestExtreme
+  FirstReading = Motor.GetCount(TestMotor) 'Read motor's rotation count
+  Program.Delay(100)
+  SecondReading = Motor.GetCount(TestMotor) 'Read the motor's rotation count 0.1s later
+  If FirstReading = SecondReading Then 'If the motor's rotation count didn't change after 0.1s, this means the motor cannot physically rotate further and has reached its extreme
+    exit = "True"
+  EndIf 
+EndSub
+
+Sub Calibration
+  exit = "False"
+  While exit = "False"
+    TestExtreme() 'Run TestExtreme sub program
+  EndWhile
+  Motor.Stop(TestMotor, "True") 'Stop the motor
+  Motor.ResetCount(TestMotor) 'Set the rotation count of the motor to 0
+  Motor.Start(TestMotor, TestPower) 'Rotate the motor in the opposite direction to test for the other extreme
+  exit = "False"
+  While exit = "False"
+    TestExtreme() 'Run TestExtreme sub program
+  EndWhile
+  Motor.Stop(TestMotor, "True")
+EndSub
+
+'Calibration for left elbow because the speeds are the reverse of the ones used for the other motors
+Sub LECalibration
+  exit = "False"
+  While exit = "False"
+    TestExtreme() 'Run TestExtreme sub program
+  EndWhile
+  Motor.Stop(TestMotor, "True") 'Stop the motor
+  Motor.ResetCount(TestMotor) 'Set the rotation count of the motor to 0
+  Motor.Start(TestMotor, -TestPower) 'Rotate the motor in the opposite direction
+  exit = "False"
+  While exit = "False"
+    TestExtreme() 'Run TestExtreme sub program
+  EndWhile
+  Motor.Stop(TestMotor, "True")
+EndSub
+
+
+'Normalising Motor Degrees
+
+Sub NormaliseRightElbow
+  Deg_RightElbow = Motor.GetCount(RightElbow)
+  N_RightElbow = Deg_rightElbow/Max_RightElbow*100-50 
+  Norm_RightElbow = N_RightElbow/50*100
+EndSub
+
+Sub NormaliseRightShoulder
+  Deg_RightShoulder = Motor.GetCount(RightShoulder)
+  N_RightShoulder = Deg_RightShoulder/Max_RightShoulder*100-35
+  Norm_RightShoulder = N_RightShoulder/65*100
+EndSub
+
+Sub NormaliseLeftShoulder
+  Deg_LeftShoulder = Motor.GetCount(LeftShoulder)
+  N_LeftShoulder = Deg_LeftShoulder/Max_LeftShoulder*100-35
+  Norm_LeftShoulder = N_LeftShoulder/65*100
+EndSub
+
+Sub NormaliseLeftElbow
+  Deg_LeftElbow = Motor.GetCount(LeftElbow)
+  N_LeftElbow = Deg_LeftElbow/Max_LeftElbow*100-50
+  Norm_LeftElbow = N_LeftElbow/50*100
+EndSub
