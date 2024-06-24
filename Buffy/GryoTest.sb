@@ -1,0 +1,154 @@
+'''SHOWCASE
+
+'Motor Variables
+FrontMotor = "B"
+LeftMotor = "A"
+RightMotor = "D"
+BackMotor = "C"
+LeftandRight = "AD"
+FrontandBack = "BC"
+All = "ABCD"
+
+'Motor Speed Variables
+LeftMax = 98
+RightMax = 100
+FrontMax = 99
+BackMax = 100
+MotorSpeed = 80
+Speed = 100
+'Sensor Variables
+FrontSensor = 3
+LeftSensor = 4
+RightSensor = 1
+BackSensor = 2
+'Extra
+'Gyro spin while movement
+MotorSpeedZ = 0 
+MotorAngle = 0
+MotorSpeedLOld = 0 
+MotorSpeedROld = 0
+MotorSpeedFOld = 0
+MotorSpeedBOld = 0
+MotorSpeedL = 0
+MotorSpeedR = 0 
+MotorSpeedF = 0
+MotorSpeedB = 0
+MotorSpeedY = 0
+MotorSpeedX = 0 
+MotorSpeedMax = 0
+MotorStartGyro = 0
+MotorSpeedGyro = 0
+
+'Other Variables
+Start = "False"
+StartTime = EV3.Time
+
+RawFront = Vector.Init(3, 0)
+RawLeft = Vector.Init(3, 0)
+RawRight = Vector.Init(3, 0)
+RawBack = Vector.Init(3, 0)
+MaxFront = Vector.Init(3, 0)
+MaxLeft = Vector.Init(3, 0)
+MaxRight = Vector.Init(3, 0)
+MaxBack = Vector.Init(3, 0)
+MinFront = Vector.Init(3, 0)
+MinLeft = Vector.Init(3, 0)
+MinRight = Vector.Init(3, 0) 
+MinBack = Vector.Init(3, 0)
+NormFront = Vector.Init(3, 0) 
+NormLeft = Vector.Init(3, 0)
+NormRight = Vector.Init(3, 0)
+NormBack = Vector.Init(3, 0)
+
+Button = Buttons.GetClicks()
+
+'Sensor Setup RGB
+Sensor.SetMode(FrontSensor, 4)
+Sensor.SetMode(LeftSensor, 4)
+Sensor.SetMode(RightSensor, 4)
+Sensor.SetMode(BackSensor, 4)
+MaxFront = Sensor.ReadRaw(FrontSensor, 3)
+MaxLeft = Sensor.ReadRaw(FrontSensor, 3)
+MaxRight = Sensor.ReadRaw(RightSensor, 3)
+MaxBack = Sensor.ReadRaw(BackSensor, 3)
+For i = 0 To 2
+  MinFront[i] = MaxFront[i]/8
+  MinLeft[i] = MaxLeft[i]/8
+  MinRight[i] = MaxRight[i]/8
+  MinBack[i] = MaxBack[i]/8
+EndFor
+
+' GYRO SENSOR SETUP
+'Attatch Gyro Sensor to port 2
+Sensor.SetMode(2,0) 'Measure Angle
+startangle = Sensor.ReadRawValue(2,0)
+
+'GYRO SUBS CODE CONVERTERS*************************************************************************************
+sub GyroUpdate
+' Convert Polar mode to Cartesian mode
+  MotorSpeedX = MotorSpeed * Math.Cos(Math.GetRadians(MotorAngle+45))
+  MotorSpeedY = MotorSpeed * Math.Sin(Math.GetRadians(MotorAngle+45))
+' Adjustment based on Gyro reading
+  Gyro = Sensor.ReadRawValue(2,0) 
+  MotorSpeedGyro = -(Gyro - startangle)
+ 'Calculate Motor Speed
+  MotorSpeedL = MotorSpeedX + MotorSpeedY - MotorSpeedZ - MotorSpeedGyro
+  MotorSpeedR = -MotorSpeedX - MotorSpeedY - MotorSpeedZ - MotorSpeedGyro
+  MotorSpeedF = MotorSpeedX - MotorSpeedY + MotorSpeedZ + MotorSpeedGyro
+  MotorSpeedB = -MotorSpeedX + MotorSpeedY + MotorSpeedZ + MotorSpeedGyro
+ ' Adjust Motor speeds if Maximum speed is greater than 100
+  MotorSpeedMax = Math.Max(Math.Abs(MotorSpeedL), Math.Max(Math.Abs(MotorSpeedR), Math.Max(Math.Abs(MotorSpeedF), Math.Abs(MotorSpeedB))))
+  If MotorSpeedMax > 100 then
+    MotorSpeedRatio = 100 / MotorSpeedMax
+  Else
+    MotorSpeedRatio = 1
+  EndIf 
+' Set Motor Speeds if they have changed
+  If MotorSpeedLOld <> MotorSpeedL Then
+    MotorSpeedLOld = MotorSpeedL
+    Motor.Start(LeftMotor, MotorSpeedL * MotorSpeedRatio)
+  EndIf
+  If MotorSpeedROld <> MotorSpeedR Then
+    MotorSpeedROld = MotorSpeedR
+    Motor.Start(RightMotor, MotorSpeedR * MotorSpeedRatio)
+  EndIf
+  If MotorSpeedFOld <> MotorSpeedF Then
+    MotorSpeedFOld = MotorSpeedF
+    Motor.Start(FrontMotor, -MotorSpeedF * MotorSpeedRatio)
+  EndIf
+  If MotorSpeedBOld <> MotorSpeedB Then
+    MotorSpeedBOld = MotorSpeedB
+    Motor.Start(BackMotor, -MotorSpeedB * MotorSpeedRatio)
+  EndIf
+
+  EndSub
+ 
+'''Actual Codes
+
+StartTime = EV3.Time
+Speaker.Tone(20, 1000, 50)
+'Chorus
+While EV3.Time - StartTime < 1*1000
+EndWhile
+Thread.Run = Dance
+
+While EV3.Time - StartTime < 100000*1000
+EndWhile
+
+
+'Subs
+Sub Dance
+  DanceStart = EV3.Time
+  While "True"
+    If DanceStart - EV3.Time >0 Then
+     MotorAngle =0
+     MotorSpeed = 0
+     MotorSpeedZ = 0  
+   Else
+     MotorAngle =0
+     MotorSpeed = 0
+      MotorSpeedZ = 0  
+    EndIf
+   GyroUpdate()
+  EndWhile
+ EndSub 

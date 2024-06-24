@@ -1,0 +1,481 @@
+'Brick Communications
+Mailbox.Connect("HEAD")
+MailID = Mailbox.Create("MBB")
+
+'Motor Variables
+FrontMotor = "B"
+LeftMotor = "A"
+RightMotor = "D"
+BackMotor = "C"
+LeftandRight = "AD"
+FrontandBack = "BC"
+All = "ABCD"
+Max = 45
+'Motor Speed Variables
+LeftMax = 100
+RightMax = 100
+FrontMax = 100
+BackMax = 100
+MotorSpeed = 80
+Speed = 100
+'Sensor Variables
+FrontSensor = 3
+LeftSensor = 4
+RightSensor = 1
+BackSensor = 2
+'Extra
+'Gyro spin while movement
+MotorSpeedZ = 0 
+MotorAngle = 0
+MotorSpeedLOld = 0 
+MotorSpeedROld = 0
+MotorSpeedFOld = 0
+MotorSpeedBOld = 0
+MotorSpeedL = 0
+MotorSpeedR = 0 
+MotorSpeedF = 0
+MotorSpeedB = 0
+MotorSpeedY = 0
+MotorSpeedX = 0 
+MotorSpeedMax = 0
+MotorStartGyro = 0
+MotorSpeedGyro = 0
+
+'Other Variables
+Start = "False"
+StartTime = EV3.Time
+
+RawFront = Vector.Init(3, 0)
+RawLeft = Vector.Init(3, 0)
+RawRight = Vector.Init(3, 0)
+RawBack = Vector.Init(3, 0)
+MaxFront = Vector.Init(3, 0)
+MaxLeft = Vector.Init(3, 0)
+MaxRight = Vector.Init(3, 0)
+MaxBack = Vector.Init(3, 0)
+MinFront = Vector.Init(3, 0)
+MinLeft = Vector.Init(3, 0)
+MinRight = Vector.Init(3, 0) 
+MinBack = Vector.Init(3, 0)
+NormFront = Vector.Init(3, 0) 
+NormLeft = Vector.Init(3, 0)
+NormRight = Vector.Init(3, 0)
+NormBack = Vector.Init(3, 0)
+
+Button = Buttons.GetClicks()
+
+'Sensor Setup RGB
+Sensor.SetMode(FrontSensor, 4)
+Sensor.SetMode(LeftSensor, 4)
+Sensor.SetMode(RightSensor, 4)
+Sensor.SetMode(BackSensor, 4)
+MaxFront = Sensor.ReadRaw(FrontSensor, 3)
+MaxLeft = Sensor.ReadRaw(FrontSensor, 3)
+MaxRight = Sensor.ReadRaw(RightSensor, 3)
+MaxBack = Sensor.ReadRaw(BackSensor, 3)
+For i = 0 To 2
+  MinFront[i] = MaxFront[i]/8
+  MinLeft[i] = MaxLeft[i]/8
+  MinRight[i] = MaxRight[i]/8
+  MinBack[i] = MaxBack[i]/8
+EndFor
+
+' GYRO SENSOR SETUP
+'Attatch Gyro Sensor to port 2
+Sensor.SetMode(2,0) 'Measure Angle
+startangle = Sensor.ReadRawValue(2,0)
+
+'GYRO SUBS CODE CONVERTERS*************************************************************************************
+sub GyroUpdate
+' Convert Polar mode to Cartesian mode
+  MotorSpeedX = MotorSpeed * Math.Cos(Math.GetRadians(MotorAngle+45))
+  MotorSpeedY = MotorSpeed * Math.Sin(Math.GetRadians(MotorAngle+45))
+' Adjustment based on Gyro reading
+  Gyro = Sensor.ReadRawValue(2,0) 
+  MotorSpeedGyro = -(Gyro - startangle)
+ 'Calculate Motor Speed
+  MotorSpeedL = MotorSpeedX + MotorSpeedY - MotorSpeedZ - MotorSpeedGyro
+  MotorSpeedR = -MotorSpeedX - MotorSpeedY - MotorSpeedZ - MotorSpeedGyro
+  MotorSpeedF = MotorSpeedX - MotorSpeedY + MotorSpeedZ + MotorSpeedGyro
+  MotorSpeedB = -MotorSpeedX + MotorSpeedY + MotorSpeedZ + MotorSpeedGyro
+ ' Adjust Motor speeds if Maximum speed is greater than 100
+  MotorSpeedMax = Math.Max(Math.Abs(MotorSpeedL), Math.Max(Math.Abs(MotorSpeedR), Math.Max(Math.Abs(MotorSpeedF), Math.Abs(MotorSpeedB))))
+  If MotorSpeedMax > 100 then
+    MotorSpeedRatio = 100 / MotorSpeedMax
+  Else
+    MotorSpeedRatio = 1
+  EndIf 
+' Set Motor Speeds if they have changed
+  If MotorSpeedLOld <> MotorSpeedL Then
+    MotorSpeedLOld = MotorSpeedL
+    Motor.Start(LeftMotor, MotorSpeedL * MotorSpeedRatio)
+  EndIf
+  If MotorSpeedROld <> MotorSpeedR Then
+    MotorSpeedROld = MotorSpeedR
+    Motor.Start(RightMotor, MotorSpeedR * MotorSpeedRatio)
+  EndIf
+  If MotorSpeedFOld <> MotorSpeedF Then
+    MotorSpeedFOld = MotorSpeedF
+    Motor.Start(FrontMotor, -MotorSpeedF * MotorSpeedRatio)
+  EndIf
+  If MotorSpeedBOld <> MotorSpeedB Then
+    MotorSpeedBOld = MotorSpeedB
+    Motor.Start(BackMotor, -MotorSpeedB * MotorSpeedRatio)
+  EndIf
+
+  EndSub
+
+'**************************************************************************************************************
+'Callibration
+While Button <> "D"
+  
+  
+  Button = Buttons.GetClicks()
+ If Button = "U" Then
+    Speaker.Tone(20, 1000, 50)
+    Buttons.Flush()
+    Motor.ResetCount(LeftMotor)
+    'Start Moving Forwards
+    Motor.StartSync(LeftandRight, LeftMax, -RightMax)
+    UpdateLightReading()
+    Button = Buttons.GetClicks()
+    While NormFront[1] > 30 And Button <> "E" '*****************
+      UpdateLightReading()
+      Button = Buttons.GetClicks()
+    EndWhile
+    'Getting Motor Readings After Seeing Line or Clicked
+    Motor.Stop(LeftandRight, "True")
+    Speaker.Tone(20, 1000, 100)
+    YDistance= Motor.GetCount(LeftMotor)
+    Program.Delay(2000)
+    'Moving Backwards to Centre
+    HalfYDistance = YDistance/2
+    Motor.MoveSync(LeftandRight, -LeftMax, RightMax, HalfYDistance, "True")
+    Speaker.Tone(20, 1500, 1000)
+    Buttons.Flush()
+  EndIf
+  
+'Sideways Callibration 
+  If Button = "R" Then
+    Speaker.Tone(20, 1000, 50)
+    Buttons.Flush()
+    'Start Moving Sideways to Right
+    Motor.StartSync(FrontandBack, FrontMax, -BackMax)
+    UpdateLightReading()
+    Button = Buttons.GetClicks()
+    While NormRight[1] > 30 And Button <> "E" '*****************
+      UpdateLightReading()
+      Button = Buttons.GetClicks()
+    EndWhile
+    'After Seeing Right Line or Clicked
+    Motor.Stop(FrontandBack, "True")
+    Speaker.Tone(20, 1000, 100)
+    Program.Delay(1000)
+    Buttons.Flush()
+    'Start Moving Sideways to Left
+    Motor.ResetCount(BackMotor)
+    Motor.StartSync(FrontandBack, -FrontMax, BackMax)
+    UpdateLightReading()
+    Button = Buttons.GetClicks()
+    While NormLeft[1] > 30 And Button <> "E" '******************
+      UpdateLightReading()
+      Button = Buttons.GetClicks()
+    EndWhile
+    'Getting Motor Readings After Seeing Left Line or Clicked
+    Motor.Stop(FrontandBack, "True")
+    Speaker.Tone(20, 1000, 100)
+    XDistance = Motor.GetCount(BackMotor)
+    Program.Delay(2000)
+    'Moving Right to Centre
+    HalfXDistance = XDistance/2
+    Motor.MoveSync(FrontandBack, 50, -50, HalfXDistance, "True")
+    Speaker.Tone(20, 1500, 1000)
+    Buttons.Flush()
+  EndIf
+    
+EndWhile
+
+
+ 
+While Buttons.GetClicks() <> "E"
+EndWhile
+
+  
+
+'**************************************************************************************************************
+
+'DANCE ROUTINE
+ 
+While Buttons.GetClicks() <> "E"
+EndWhile
+StartTime = EV3.Time
+Speaker.Tone(20, 1000, 50)
+'Chorus
+While EV3.Time - StartTime < 1*1000
+EndWhile
+Thread.Run = Dance
+While EV3.Time - StartTime < 200*1000
+EndWhile
+
+
+'Subs
+Sub Dance
+  DanceStart = EV3.Time
+  While "True"
+    'Chorus 1
+   If EV3.Time - DanceStart > 0 and EV3.Time - DanceStart < 4000 Then 'Move forwards 4 seconds
+     MotorAngle = 0
+     MotorSpeed = Max
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 4000 and EV3.Time - DanceStart < 8000 Then ' Move Backwards 4 seconds
+     MotorAngle = 180
+     MotorSpeed = Max
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 8000 and EV3.Time - DanceStart < 9000 Then   '90 degrees right
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = -90
+   ElseIf EV3.Time - DanceStart > 10000 and EV3.Time - DanceStart < 12000 Then      '180 degreesleft
+     MotorAngle = 0
+     MotorSpeed = 0
+      MotorSpeedZ = 90
+   ElseIf EV3.Time - DanceStart > 12000 and EV3.Time - DanceStart < 14000 Then   ' Center Original
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 14000 and EV3.Time - DanceStart < 14500 Then  'Turn Left
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = 90
+   ElseIf EV3.Time - DanceStart > 14500 and EV3.Time - DanceStart < 15000 Then   'Original
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 15000 and EV3.Time - DanceStart < 15500 Then  'Turn Right
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = -90
+   ElseIf EV3.Time - DanceStart > 15500 and EV3.Time - DanceStart < 16000 Then   'Original
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = 0
+   'Chrous 2
+   ElseIf EV3.Time - DanceStart > 16000 and EV3.Time - DanceStart < 20000 Then 'Move forwards 4 seconds
+     MotorAngle = 0
+     MotorSpeed = Max
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 20000 and EV3.Time - DanceStart < 24000 Then ' Move Backwards 4 seconds
+     MotorAngle = 180
+     MotorSpeed = Max
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 24000 and EV3.Time - DanceStart < 25000 Then   '90 degrees right
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = -90
+   ElseIf EV3.Time - DanceStart > 26000 and EV3.Time - DanceStart < 28000 Then      '180 degreesleft
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = 90
+   ElseIf EV3.Time - DanceStart > 28000 and EV3.Time - DanceStart < 30000 Then   ' Center Original
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 30000 and EV3.Time - DanceStart < 30500 Then  'Turn Left
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = 90
+   ElseIf EV3.Time - DanceStart > 30500 and EV3.Time - DanceStart < 31000 Then   'Original
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 31000 and EV3.Time - DanceStart < 31500 Then  'Turn Right
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = -90
+   ElseIf EV3.Time - DanceStart > 31500 and EV3.Time - DanceStart < 32000 Then   'Original
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = 0
+   'Chorus End
+   ElseIf EV3.Time - DanceStart >33000 and EV3.Time - DanceStart <36000 Then 'Spin 4 seconds
+      MotorAngle = 0
+      MotorSpeed = 0
+      MotorSpeedZ = 0
+    'Verse
+   ElseIf EV3.Time - DanceStart >36000 and EV3.Time - DanceStart <40000 Then ' LINE 1
+     MotorAngle = 270
+     MotorSpeed = 45
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 40000 and EV3.Time - DanceStart < 44000 Then ' Line 2
+     MotorAngle = 60
+     MotorSpeed = 60
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 44000 and EV3.Time - DanceStart < 48000 Then   'LINE 3
+     MotorAngle = 120
+     MotorSpeed = 45
+     MotorSpeedZ = 0
+     ElseIf EV3.Time - DanceStart > 48000 and EV3.Time - DanceStart < 52000 Then      'LINE 4
+     MotorAngle = 270
+     MotorSpeed = 35
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 52000 and EV3.Time - DanceStart < 56000 Then   'LINE 5
+     MotorAngle = 45
+     MotorSpeed = 55
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 56000 and EV3.Time - DanceStart < 60000 Then   'LINE 6   
+     MotorAngle = 0
+     MotorSpeed = 70
+     MotorSpeedZ = 90
+   ElseIf EV3.Time - DanceStart > 60000 and EV3.Time - DanceStart < 61000 Then    'LINE 7
+     MotorAngle = 225
+     MotorSpeed = 45
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 61000 and EV3.Time - DanceStart < 62000 Then  'LINE 7
+     MotorAngle = 135
+     MotorSpeed = 35
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 62000 and EV3.Time - DanceStart < 63000 Then   'LINE 7
+     MotorAngle = 225
+     MotorSpeed = 45
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 63000 and EV3.Time - DanceStart < 64000 Then  'LINE7
+     MotorAngle = 135
+     MotorSpeed = 35
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 64000 and EV3.Time - DanceStart < 66000 Then  'LINE7
+     MotorAngle = 180
+     MotorSpeed = 25
+     MotorSpeedZ = 0
+   'Chorus 1
+   ElseIf EV3.Time - DanceStart > 66*1000 and EV3.Time - DanceStart < 70*1000 Then 'Move forwards 4 seconds
+     MotorAngle = 0
+     MotorSpeed = Max
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 70*1000 and EV3.Time - DanceStart < 74*1000 Then ' Move Backwards 4 seconds
+     MotorAngle = 180
+     MotorSpeed = Max
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 74* 1000 and EV3.Time - DanceStart < 75*1000 Then   '90 degrees right
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = -90
+   ElseIf EV3.Time - DanceStart > 76*1000 and EV3.Time - DanceStart < 78*1000 Then      '180 degreesleft
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = 90
+   ElseIf EV3.Time - DanceStart > 78* 1000 and EV3.Time - DanceStart < 80*1000 Then   ' Center Original
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 80*1000 and EV3.Time - DanceStart < 80.5*1000 Then  'Turn Left
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = 90
+   ElseIf EV3.Time - DanceStart > 80.5*1000 and EV3.Time - DanceStart < 81 * 1000 Then   'Original
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 81*1000 and EV3.Time - DanceStart < 81.5 *1000 Then  'Turn Right
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = -90
+   ElseIf EV3.Time - DanceStart > 81500 and EV3.Time - DanceStart < 82000 Then   'Original
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = 0
+   'Chrous 2
+   ElseIf EV3.Time - DanceStart > 82000 and EV3.Time - DanceStart < 86000 Then 'Move forwards 4 seconds
+     MotorAngle = 0
+     MotorSpeed = Max
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 86000 and EV3.Time - DanceStart < 90000 Then ' Move Backwards 4 seconds
+     MotorAngle = 180
+     MotorSpeed = Max
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 90000 and EV3.Time - DanceStart < 91000 Then   '90 degrees right
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = -90
+   ElseIf EV3.Time - DanceStart > 92000 and EV3.Time - DanceStart < 94000 Then      '180 degreesleft
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = 90
+   ElseIf EV3.Time - DanceStart > 94000 and EV3.Time - DanceStart < 96000 Then   ' Center Original
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 96000 and EV3.Time - DanceStart < 96500 Then  'Turn Left
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = 90
+   ElseIf EV3.Time - DanceStart > 96500 and EV3.Time - DanceStart < 97000 Then   'Original
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = 0
+   ElseIf EV3.Time - DanceStart > 97000 and EV3.Time - DanceStart < 97500 Then  'Turn Right
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = -90
+   ElseIf EV3.Time - DanceStart > 97500 and EV3.Time - DanceStart < 98000 Then   'Original
+     MotorAngle = 0
+     MotorSpeed = 0
+     MotorSpeedZ = 0
+   'Chorus End
+   ElseIf EV3.Time - DanceStart >99500 and EV3.Time - DanceStart <103.5 *1000 Then 'Spin 4 seconds
+      MotorAngle = 0
+      MotorSpeed = 0
+      MotorSpeedZ = -360
+   Else
+      MotorAngle = 0
+      MotorSpeed = 0
+      MotorSpeedZ = 0
+   EndIf
+    
+  GyroUpdate()
+   
+  EndWhile
+EndSub
+
+Sub UpdateLightReading
+  Sensor.SetMode(FrontSensor, 4)
+  Sensor.SetMode(LeftSensor, 4)
+  Sensor.SetMode(RightSensor, 4)
+  Sensor.SetMode(BackSensor, 4)
+  RawFront = Sensor.ReadRaw(FrontSensor, 3)
+  RawLeft = Sensor.ReadRaw(LeftSensor, 3)
+  RawRight = Sensor.ReadRaw(RightSensor, 3)
+  RawBack = Sensor.ReadRaw(BackSensor, 3)
+  For i = 0 To 2
+    'Updating Minimum Values
+    If RawFront[i] < MinFront[i] Then
+      MinFront[i] = RawFront[i]
+    EndIf
+    If RawLeft[i] < MinLeft[i] Then
+      MinLeft[i] = RawLeft[i]
+    EndIf
+    If RawRight[i] < MinRight[i] Then
+      MinRight[i] = RawRight[i]
+    EndIf
+    If RawBack[i] < MinBack[i] Then
+      MinBack[i] = RawBack[i]
+    EndIf
+    'Updating Maximum Values
+    If RawFront[i] > MaxFront[i] Then
+      MaxFront[i] = RawFront[i]
+    EndIf
+    If RawLeft[i] > MaxLeft[i] Then
+      MaxLeft[i] = RawLeft[i]
+    EndIf
+    If RawRight[i] > MaxRight[i] Then
+      MaxRight[i] = RawRight[i]
+    EndIf
+    If RawBack[i] > MaxBack[i] Then
+      MaxBack[i] = RawBack[i]
+    EndIf
+    ' Normalising Values
+    NormFront[i] = ((RawFront[i] - MinFront[i])*100)/(MaxFront[i] - MinFront[i])
+    NormLeft[i] = ((RawLeft[i] - MinLeft[i])*100)/(MaxLeft[i] - MinLeft[i])
+    NormRight[i] = ((RawRight[i] - MinRight[i])*100)/(MaxRight[i] - MinRight[i])
+    NormBack[i] = ((RawBack[i] - MinBack[i]*100)/MaxBack[i] - MinBack[i])
+    EndFor
+EndSub
