@@ -1,6 +1,6 @@
 Buff Bunny(AUS)
 
-A team with dreams and objectives that born on All Saints' College in Australia!
+A team that wanted to win a dance comp and show real dance born on All Saints' College in Australia!
 
 📌 About the Repository
 
