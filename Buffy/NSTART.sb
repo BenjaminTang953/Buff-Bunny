@@ -1,0 +1,15 @@
+'BRICK COMMUNICATIONS
+Mailbox.Connect("ARMS")
+Mailbox.Connect("LEGS")
+Mailbox.Connect("BASE")
+Mailbox.Connect("EXTRA")
+'SENDING START MESSAGE
+While "True"
+  If Sensor.ReadPercent(4) = 100 Then
+    Mailbox.Send("ARMS", "MBA", "Start")
+    Mailbox.Send("LEGS", "MBL", "Start")
+    Mailbox.Send("BASE", "MBB", "Start")
+    Mailbox.Send("EXTRA", "MBE", "Start")
+    Speaker.Tone(20, 1000, 500)
+  EndIf
+EndWhile
