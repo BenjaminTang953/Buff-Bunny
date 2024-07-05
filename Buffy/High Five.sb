@@ -2,18 +2,21 @@
 '''UNLTRASONIC VERSION -> NEEDED FOR POINTS
 
 
-While Sensor.ReadRawValue(4,0) <= 60
+While Sensor.ReadPercent(2) <> 100
 EndWhile
 Thread.Run = Arm
 Thread.Run = Elbow
+
 While "True"
   If Sensor.ReadRawValue(4,0) <= 60 Then
     Elbow2()
   EndIf
 EndWhile
 
+
+
 Sub Arm
-  Motor.Move("C", 40, 100, "True")
+  Motor.Move("C", 40, 120, "True")
   Program.Delay(400)
    'Motor.Move("B", -30,  120, "True")
 EndSub
