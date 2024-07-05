@@ -1,0 +1,14 @@
+rightMotor = "B"
+leftMotor = "C"
+nodGyro = 3
+shakeGyro = 4
+
+nod = 0
+
+Sensor.SetMode(nodGyro, 0)
+Sensor.SetMode(shakeGyro, 0)
+nod = Sensor.ReadRawValue(nodGyro, 0)
+
+While 1 = 1
+  LCD.Write(40,40, nod)
+  EndWhile
