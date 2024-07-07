@@ -1,15 +1,60 @@
-rightMotor = "B"
-leftMotor = "C"
-nodGyro = 3
-shakeGyro = 4
 
-nod = 0
-
-Sensor.SetMode(nodGyro, 0)
-Sensor.SetMode(shakeGyro, 0)
+rightMotor = "B"  'right motor
+leftMotor = "C" 'left motor
+bothMotors = "BC" 'Im lazy :(
 
 
-While 1 = 1
-  nod = Sensor.ReadRawValue(nodGyro, 0)
-  LCD.Write(40,40, nod)
-  EndWhile
+''''''''''''''' i = 0 for nodding'''''' i = 1 for shaking'''''''''''''''
+gyro[0] = 3 'Up/down movement
+gyro[1] = 4 'Left/right movement
+target[0] = 0 'Wanted end degrees up/down from center '''Nodding'''
+target[1] = 0 'Wanted end degrees left/right from center '''Shaking'''
+current[0] = 0 'Current degrees up/down from center '''Nodding'''
+current[1] = 0 'Current degrees left/right from center '''Shaking'''
+start[0] = 0
+start[1] = 0
+speed[0] = 30 '''Nodding'''
+speed[1] = 30 '''Shaking'''
+difference = 0
+
+
+Sub Initialise
+  For i = 0 to 1
+    Sensor.SetMode(gyro[i],0)
+    start[i] = Sensor.ReadRawValue(gyro[i],0)
+    
+  
+  
+EndSub
+
+
+Sub Shake
+
+
+EndSub
+
+Sub Nod
+  difference =  target[1] - current[1]
+  If difference > 0 Then
+    Motor.Start(bothMotors, speed[1], speed[1], "True
+  EndIf
+  
+EndSub
+  
+  
+Sub GyroReading
+  For i = 0 to 1
+    current[i] = Sensor.ReadRawValue(gyro[i], 0) - start[i]
+    If current[i] => 0 Then
+      While current[i] => 360 Then
+        current[i] = current[i] - 360
+      EndWhile
+    ElseIf current[i] =< 0 Then
+      While current[i] =< -360 Then
+        current[i] = current[i] + 360 
+      EndWhile
+    EndIf
+  EndFor  
+EndSub
+  
+  
