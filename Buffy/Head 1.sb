@@ -1,0 +1,59 @@
+'Bluetooth connections
+Mailbox.Connect("ARMS")
+'Mailbox.Connect("LEGS")
+Mailbox.Connect("BASE")
+'Mailbox.Connect("CL")
+'Mailbox.Connect("CR")
+
+'Colour sensor test
+LCD.Clear()
+
+'Set colour sensor to RGB mode (plugged in port 1)
+Sensor.SetMode(1,4)
+
+While "True"
+  'Clear screen
+  LCD.Clear()
+  
+  'Touch sensor
+  If Sensor.ReadPercent(2) = 100 Then
+    Mailbox.Send("BASE", "MBB", "Start")
+    Mailbox.Send("ARMS", "MBA", "Start")
+    'Mailbox.Send("CL", "MBCL", "Start")
+    'Mailbox.Send("CR", "MBCR", "Start")
+    Speaker.Tone(50, 1000, 200)
+  EndIf
+  
+  'Convert inputs into strings
+  red = "" + Sensor.ReadRawValue(1,0)
+  green = "" + Sensor.ReadRawValue(1,1)
+  blue = "" + Sensor.ReadRawValue(1,2)
+  
+  'Write RGB values
+  LCD.Write(20, 20, red + " " + green + " " + blue)
+  
+  'Inputs as numbers
+  r = Sensor.ReadRawValue(1,0)
+  g = Sensor.ReadRawValue(1,1)
+  b = Sensor.ReadRawValue(1,2)
+  
+  'Test for colours - make sure to check raw values in diff lighting conditions and update conditions if necessary
+  If r>125 and g>125 and b>125 Then 'white
+    Mailbox.Send("BASE", "MBB", "Splits") 'splits
+    Mailbox.Send("ARMS", "MBA", "Splits")
+    Speaker.Tone(50, 900, 100)
+    LCD.Write(20, 40, "WHITE")
+  ElseIf r<50 and g>50 and b<50 Then 'green
+    Mailbox.Send("BASE", "MBB", "Pirouette") 'pirouette
+    Mailbox.Send("ARMS", "MBA", "Pirouette")
+    Speaker.Tone(50, 600, 100)
+    LCD.Write(20, 40, "GREEN")
+  ElseIf r>50 and g<50 and b<50 Then 'red
+    Mailbox.Send("BASE", "MBB", "Moonwalk") 'moonwalk
+    Mailbox.Send("ARMS", "MBA", "Moonwalk")
+    Speaker.Tone(50, 300, 100)
+    LCD.Write(20, 40, "RED")
+  EndIf
+  
+EndWhile
+

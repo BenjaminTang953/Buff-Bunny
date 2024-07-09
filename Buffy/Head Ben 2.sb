@@ -1,0 +1,11 @@
+Sensor.SetMode(3,0)
+Sensor.SetMode(4,0)
+
+LCD.Clear()
+
+While "True"
+  
+  LCD.Write(30, 30, Sensor.ReadRawValue(3,0))
+  LCD.Write(30, 50, Sensor.ReadRawValue(4,0))
+EndWhile
+

@@ -1,0 +1,161 @@
+'  ** Gyro Head Example **
+
+'  By David Musgrave
+
+'  http://WinthropDC.com
+
+'  Last Modified: 06-Jul-2024
+
+' ** Setup Starts Here *******************************************************************************************************
+' System Settings
+SensorGyroUD = 3
+SensorGyroLR = 4
+MotorHeadL = "B"
+MotorHeadR = "C"
+True = "True" ' String True
+False = "False" ' String False
+
+' Program Settings
+Finished = False 
+
+' Variable Declaration
+SensorGyroReadLR = 0 ' Left Right Gyro Reading
+SensorGyroReadUD = 0 ' Up Down Gyro Reading
+SensorGyroBaseLR = 0 ' Left Right Starting Position
+SensorGyroBaseUD = 0 ' Up Down Starting Position
+HeadSpeedLR = 20 ' Left Right Movement Speed
+HeadSpeedUD = 20 ' Up Down Movement Speed
+HeadSpeedRatio = 1 ' Speed Ratio in case Motor speeds are > 100
+HeadTargetLR = 0 ' Desired Target Left Right Gyro Position
+HeadTargetUD = 0 ' Desired Target Up Down Gyro Position
+SpeedHeadLR = 0 ' Speed to move Left Right
+SpeedHeadUD = 0 ' Speed to move Up Down
+SpeedHeadL = 0 ' Speed to send to Left Motor
+SpeedHeadR = 0 ' Speed to send to Right Motor
+SpeedHeadMax = 0 ' Max Speed, used to calculate Speed Ratio
+SpeedHeadFactor = 0 ' Factor used to slow head when close to target
+
+TimeStart = 0 ' Start time in milliseconds
+TimeRead = 0.0 ' Time reading in seconds
+
+' ** Subroutines Starts Here *******************************************************************************************************
+
+Sub ReadGyros
+  Sensor.SetMode(SensorGyroLR, 0)
+  Sensor.SetMode(SensorGyroUD, 0)
+  SensorGyroReadLR = Sensor.ReadRawValue(SensorGyroLR, 0) - SensorGyroBaseLR
+  SensorGyroReadUD = Sensor.ReadRawValue(SensorGyroUD, 0) - SensorGyroBaseUD
+EndSub
+
+Sub ReadTime
+  TimeRead = (TimeStart - EV3.Time) / 1000
+EndSub
+
+Sub Initialize
+  ReadGyros()
+  ' Store Starting Base Positions
+  SensorGyroBaseUD = SensorGyroReadUD
+  SensorGyroBaseLR = SensorGyroReadLR   
+  
+  ' Store Start Time
+  TimeStart = EV3.Time
+EndSub
+
+Sub MoveHead
+  ' Read Sensors
+  ReadGyros()
+  
+  ' Speed of Movement needed (Slower speeds for last 5 degrees)
+  SpeedHeadFactor = 1.0 / 5
+  If HeadTargetLR < SensorGyroReadLR Then
+    SpeedHeadLR = -Math.Min(1.0, Math.Abs(HeadTargetLR - SensorGyroReadLR) * SpeedHeadFactor) * HeadSpeedLR
+  ElseIf HeadTargetLR > SensorGyroReadLR Then
+    SpeedHeadLR = Math.Min(1.0, Math.Abs(HeadTargetLR - SensorGyroReadLR) * SpeedHeadFactor) * HeadSpeedLR
+  Else
+    SpeedHeadLR = 0
+  EndIf
+  If HeadTargetUD < SensorGyroReadUD Then
+    SpeedHeadUD = -Math.Min(1.0, Math.Abs(HeadTargetUD - SensorGyroReadUD) * SpeedHeadFactor) * HeadSpeedUD
+  ElseIf HeadTargetUD > SensorGyroReadUD Then
+    SpeedHeadUD = Math.Min(1.0, Math.Abs(HeadTargetUD - SensorGyroReadUD) * SpeedHeadFactor) * HeadSpeedUD
+  Else
+    SpeedHeadUD = 0
+  EndIf
+  
+  ' Motor Speeds ( Adjust signs as needed)
+  SpeedHeadL = -SpeedHeadLR + SpeedHeadUD
+  SpeedHeadR = -SpeedHeadLR - SpeedHeadUD
+  
+ ' Adjust Motor speeds if Maximum speed is greater than 100
+  SpeedHeadMax = Math.Max(Math.Abs(SpeedHeadL), Math.Abs(SpeedHeadR))
+  If SpeedHeadMax > 100 then
+    HeadSpeedRatio = 100 / SpeedHeadMax
+  Else
+    HeadSpeedRatio = 1
+  EndIf 
+  
+  ' Power Motors as Needed
+  If SpeedHeadL = 0 Then
+    Motor.Stop(MotorHeadL, True)
+  Else
+    Motor.Start(MotorHeadL, SpeedHeadL * HeadSpeedRatio)
+  EndIf
+  If SpeedHeadR = 0 Then
+    Motor.Stop(MotorHeadR, True)
+  Else
+    Motor.Start(MotorHeadR, SpeedHeadR * HeadSpeedRatio)    
+  EndIf
+  
+EndSub
+
+' ** Main Program Starts Here *******************************************************************************************************
+
+' Initialize Sensors
+Initialize()
+
+' Program Main Loop
+While Finished = False
+  ReadTime()
+  
+  If TimeRead < 2000000.0 Then
+    ' Stay Still to check for Gyro drift
+    HeadTargetLR = 0
+    HeadTagetUD = 0
+  'ElseIf TimeRead < 4.0 Then
+    ' Look Left
+    'HeadTargetLR = -20
+    'HeadTagetUD = 0
+  'ElseIf TimeRead < 6.0 Then
+    ' Look Right
+    'HeadTargetLR = 20
+    'HeadTagetUD = 0
+  'ElseIf TimeRead < 8.0 Then
+    ' Look Centre
+    'HeadTargetLR = 0
+    'HeadTagetUD = 0
+  'ElseIf TimeRead < 10.0 Then
+    ' Look Up
+    'HeadTargetLR = 0
+    'HeadTagetUD = 20
+  'ElseIf TimeRead < 12.0 Then
+    'Look Down
+    'HeadTargetLR = 0
+    'HeadTagetUD = -20
+  'ElseIf TimeRead < 14.0 Then
+    'Look Centre
+    'HeadTargetLR = 0
+    'HeadTagetUD = 0
+  Else
+    ' Exit program
+    Finished = True
+  EndIf
+      
+  MoveHead()
+EndWhile
+
+' Turn off Motor Brakes
+Motor.Stop(MotorHeadL, False)
+Motor.Stop(MotorHeadR, False)
+
+' ** End of Program **
+

@@ -1,6 +1,6 @@
 Buff Bunny(AUS)
 
-A team with dreams and objectives that born on All Saints' College in Australia!
+A team that wanted to win a dance comp and show real dance born on All Saints' College in Australia!
 
 📌 About the Repository
 
@@ -17,11 +17,12 @@ Performance 2: (TBD)
 
 Superteam Performance: (TBD)
 
-Nationals Performance: (TBD)
+Nationals Performance: https://www.youtube.com/watch?v=MEQumMhGkxA
 
-States Performance: (TBD)
+
 
 📝 About the Team
-This is our team's first season in the onstage catergory. So we are newbies. We had other teammates but for RoboCup, our team was formed by: Kerry, Emma, Ben, Riley, Taryn and our mentor was Donna Hatton. I will not mention everyone that helped in any way to we go and participate in RoboCup because it will take a long list but...
+
+This is our team's first ever season in the onstage catergory. So we are newbies. We had other teammates but for RoboCup Internationals, our team is formed by: Kerry, Emma, Ben, Riley, Taryn and our mentor is Donna Hatton. I will not mention everyone that helped in any way to we go and participate in RoboCup because it will take a long list but...
 
 ➜ THANK YOU SO MUCH!! Without your help, nothing was possible. ❤️

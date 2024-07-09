@@ -1,0 +1,27 @@
+moveModShake = 12/35'modifier for gear ratio for shaking 
+moveModNod = 4/7
+moveDeg = 90 
+speed = 10
+
+leftMot = "C"
+rightMot = "B"
+
+While 1 = 1
+  pressed = Buttons.Current ' PLEASE ONLY PRESS ON AT A TIME - COULDNT BE BOTHERED TO MAKE A FAILSAFE
+  If pressed = "U" Then
+    Motor.Start(leftMot, speed)
+    Motor.Start(rightMot, speed)
+  ElseIf pressed = "D" then
+    Motor.Start(leftMot, -speed)
+    Motor.Start(rightMot, -speed)
+  ElseIf pressed = "R" then
+    Motor.Start(leftMot, speed)
+    Motor.Start(rightMot, -speed)
+  ElseIf pressed = "L" then
+    Motor.Start(leftMot, -speed)
+    Motor.Start(rightMot, speed)
+  Else
+    Motor.Stop(leftMot, "True")
+    Motor.Stop(rightMot, "True")
+  EndIf
+EndWhile
