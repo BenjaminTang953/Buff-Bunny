@@ -1,0 +1,14 @@
+camPort = 3
+camAddr = 1
+camReg = 67
+camReadData = 0
+TricksList = ["Piroette","Split","Moonwalk"]
+
+
+Sub checkTrick
+  ColorRead = Sensor.ReadI2CRegister(camPort, camAddr, camReg)
+  Trick = TricksList[ColorRead-1]
+EndSub
+
+
+    
