@@ -1,7 +1,7 @@
 moveModShake = 12/35'modifier for gear ratio for shaking 
 moveModNod = 4/7
 moveDeg = 90 
-speed = 30
+speed = 10
 
 leftMot = "C"
 rightMot = "B"
