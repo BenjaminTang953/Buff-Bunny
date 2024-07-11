@@ -1,0 +1,535 @@
+'Finalised
+
+'Brick Communication
+Mailbox.Connect("HEAD")
+MailID = Mailbox.Create("MBL")
+
+'Motor Variables
+LLeg = "B"
+RLeg = "C"
+Legs = "BC"
+LKnee = "A"
+RKnee = "D"
+ALL = "ABCD"
+Knees = "AD"
+Left = "AB"
+Right = "DC"
+
+'CALIBRATION***************************************************************************************************
+TestPower = 50
+
+'Calibration for RLeg
+Motor.Start(RLeg, -TestPower)
+TestMotor = RLeg
+Calibration()
+Max_RLeg = Motor.GetCount(TestMotor)
+'Normalising RLeg
+Deg_RLeg = Motor.GetCount(RLeg)
+N_RLeg = Deg_RLeg/Max_RLeg*100-35
+Norm_RLeg = N_RLeg/65*100
+'RLeg in Rest Position
+Motor.Start(RLeg, -TestPower)
+Deg_RLeg = Motor.GetCount(RLeg)
+While Norm_RLeg > 0
+  NormaliseRLeg()
+EndWhile
+Motor.Stop(RLeg, "True")
+Program.Delay(1000)
+
+'Calibration for LLeg
+Motor.Start(LLeg, -TestPower)
+TestMotor = LLeg
+Calibration()
+Max_LLeg = Motor.GetCount(TestMotor)
+'Normalising LLeg
+Deg_LLeg = Motor.GetCount(LLeg)
+N_LLeg = Deg_LLeg/Max_LLeg*100-35
+Norm_LLeg = N_LLeg/65*100
+'LLeg in Rest Position
+Motor.Start(LLeg, -TestPower)
+Deg_LLeg = Motor.GetCount(LLeg)
+While Norm_LLeg > 0
+  NormaliseLLeg()
+EndWhile
+Motor.Stop(LLeg, "True")
+Program.Delay(1000)
+
+'Calibration for LKnee
+Motor.Start(LKnee, -TestPower)
+TestMotor = LKnee
+Calibration()
+Max_LKnee = Motor.GetCount(TestMotor)
+'Normalising LKnee
+Deg_LKnee = Motor.GetCount(LKnee)
+N_LKnee = Deg_LKnee/Max_LKnee*100-50
+Norm_LKnee = N_LKnee/50*100
+'LKnee in Rest Position
+Motor.Start(LKnee, -TestPower)
+Deg_LKnee = Motor.GetCount(LKnee)
+While Norm_LKnee > 0
+  NormaliseLKnee()
+EndWhile
+Motor.Stop(LKnee, "True")
+Program.Delay(1000)
+
+'Calibration for RKnee
+Motor.Start(RKnee, -TestPower)
+TestMotor = RKnee
+Calibration()
+Max_RKnee = Motor.GetCount(TestMotor)
+'Normalising RKnee
+Deg_RKnee = Motor.GetCount(RKnee)
+N_RKnee = Deg_RKnee/Max_RKnee*100-50
+Norm_RKnee = N_RKnee/50*100
+'RKnee in Rest Position
+Motor.Start(RKnee, -TestPower)
+Deg_RKnee = Motor.GetCount(LKnee)
+While Norm_RKnee > 0
+  NormaliseRKnee()
+EndWhile
+Motor.Stop(RKnee, "True")
+Program.Delay(1000)
+
+'Sub Programs
+Sub TestExtreme
+  FirstReading = Motor.GetCount(TestMotor)
+  Program.Delay(100)
+  SecondReading = Motor.GetCount(TestMotor)
+  If FirstReading = SecondReading Then
+    exit = "True"
+  EndIf 
+EndSub
+Sub Calibration
+  exit = "False"
+  While exit = "False"
+    TestExtreme()
+  EndWhile
+  Motor.Stop(TestMotor, "True")
+  Motor.ResetCount(TestMotor)
+  Motor.Start(TestMotor, TestPower)
+  exit = "False"
+  While exit = "False"
+    TestExtreme()
+  EndWhile
+  Motor.Stop(TestMotor, "True")
+EndSub
+
+'Normalising Motor Degrees
+Sub NormaliseRLeg
+  Deg_RLeg = Motor.GetCount(RLeg)
+  N_RLeg = Deg_RLeg/Max_RLeg*100-35
+  Norm_RLeg = N_RLeg/65*100
+EndSub
+Sub NormaliseLLeg
+  Deg_LLeg = Motor.GetCount(LLeg)
+  N_LLeg = Deg_LLeg/Max_LLeg*100-35
+  Norm_LLeg = N_LLeg/65*100
+EndSub
+Sub NormaliseLKnee
+  Deg_LKnee = Motor.GetCount(LKnee)
+  N_LKnee = Deg_LKnee/Max_LKnee*100-50
+  Norm_LKnee = N_LKnee/50*100
+EndSub
+Sub NormaliseRKnee
+  Deg_RKnee = Motor.GetCount(RKnee)
+  N_RKnee = Deg_RKnee/Max_RKnee*100-50
+  Norm_RKnee = N_RKnee/50*100
+EndSub
+
+'TOUCH SENSOR START**************************************************************************************************
+Start = "False"
+LCD.Clear()
+While Start = "False"
+  If Mailbox.IsAvailable(MailID) Then  
+    If Mailbox.Receive(MailID) = "Start" Then
+      LCD.Write(20, 20, "Start")
+      Start = "True"
+    EndIf
+  EndIf
+EndWhile
+
+'CHOREOGRAPHY********************************************************************************************************
+StartTime = EV3.Time
+Speaker.Tone(20, 1000, 50)
+'Chorus
+While EV3.Time - StartTime < 1*1000
+EndWhile
+Thread.Run = Chorus
+While EV3.Time - StartTime < 17*1000
+EndWhile
+Thread.Run = Chorus
+'Verse
+While EV3.Time - StartTime < 37*1000
+EndWhile
+Thread.Run = VerseStartLeg
+Thread.Run = VerseStartKnee
+While EV3.Time - StartTime < 45*1000
+EndWhile
+Thread.Run = VerseMove
+While EV3.Time - StartTime < 57*1000
+EndWhile
+Thread.Run = VerseEnd
+'Chorus
+While EV3.Time - StartTime < 66*1000
+EndWhile
+Thread.Run = Chorus
+While EV3.Time - StartTime < 82*1000
+EndWhile
+Thread.Run = Chorus
+While EV3.Time - StartTime < 800*1000
+EndWhile
+
+'SUB PROGRAMS************************************************************************************************************
+Sub Chorus
+  ChorusStart = EV3.Time
+  'LINE 1
+  ReadyL() '1s
+  WalkR()
+  WalkL() '2s
+  WalkR()
+  WalkL() '3s
+  WalkR() 
+  WalkL() '4s
+  WalkR()
+  'LINE 2
+  WalkL() '1s
+  WalkR()
+  WalkL() '2s
+  WalkR()
+  WalkL() '3s
+  WalkR()
+  WalkL() '4s
+  ReadyR()
+  'LINE 3: NOTHING
+  Motor.Stop(Legs, "True")
+  'LINE 4: NOTHING
+EndSub
+
+Sub ReadyL 'ready position for walking with LLeg forwards
+  ReadyLStart = EV3.Time
+  Motor.StartSync(Legs, 10, -10) 'LLeg forwards, RLeg backwards
+  NormaliseLLeg()
+  NormaliseRLeg()
+  While EV3.Time - ReadyLStart < 0.5*1000 And Norm_LLeg < 40 And Norm_RLeg > -40
+    NormaliseLLeg()
+    NormaliseRLeg()
+  EndWhile
+  Motor.Stop(Legs, "False")
+  While EV3.Time - ReadyLStart < 0.5*1000 'Wait if needed
+  EndWhile
+EndSub
+Sub ReadyR 'geting back to rest position after walking, with LLeg backwards
+  ReadyRStart = EV3.Time
+  Motor.StartSync(Legs, -10, 10)
+  NormaliseLLeg()
+  NormaliseRLeg()
+  While EV3.Time - ReadyRStart < 0.5*1000 And Norm_LLeg > 0 And Norm_RLeg < 0
+    NormaliseLLeg()
+    NormaliseRLeg()
+  EndWhile
+  Motor.Stop(Legs, "False")
+  While EV3.Time - ReadyLStart < 0.5*1000 'Wait if needed
+  EndWhile
+EndSub
+
+Sub WalkR
+  WalkRStart = EV3.Time
+  Motor.StartSync(Legs, -20, 20) 'LLeg backwards, RLeg forwards
+  NormaliseLLeg()
+  NormaliseRLeg()
+  While EV3.Time - WalkRStart < 0.5*1000 And Norm_LLeg > -40 And Norm_RLeg < 40 
+    NormaliseLLeg()
+    NormaliseRLeg()
+  EndWhile
+  Motor.Stop(Legs, "False")
+  While EV3.Time - WalkRStart < 0.5*1000 'Wait if needed
+  EndWhile
+EndSub
+Sub WalkL
+  WalkLStart = EV3.Time
+  Motor.StartSync(Legs, 20, -20) 'LLeg forwards, RLeg backwards
+  NormaliseLLeg()
+  NormaliseRLeg()
+  While EV3.Time - WalkLStart < 0.5*1000 And Norm_LLeg < 40 And Norm_RLeg > -40
+    NormaliseLLeg()
+    NormaliseRLeg()
+  EndWhile 
+  Motor.Stop(Legs, "False")
+  While EV3.Time - WalkLStart < 0.5*1000 'Wait if needed
+  EndWhile
+EndSub
+
+Sub VerseStartLeg '8 seconds 
+  '4 SECONDS STOMPING - 1S EACH LEG, LLEG FIRST
+  LegStompL() 'Left
+  LegStompR() 'Right
+  LegStompL() 'Left
+  LegStompR() 'Right
+  '4 SECONDS WALKING
+  ReadyL()
+  WalkR()
+  WalkL()
+  WalkR()
+  WalkL()
+  WalkR()
+  WalkL()
+  ReadyR()
+EndSub
+Sub LegStompL
+  LStompLStart = EV3.Time
+  Motor.Start(LLeg, 40) 'Left leg up
+  NormaliseLLeg()
+  While EV3.Time - LStompLStart < 0.5*1000 And Norm_LLeg < 90
+    NormaliseLLeg()
+  EndWhile
+  Motor.Stop(Lleg, "True")
+  While EV3.Time - LStompLStart < 0.5*1000 'Wait if needed
+  EndWhile
+  Motor.Start(LLeg, -40) 'Left leg down
+  NormaliseLLeg()
+  While EV3.Time - LStompLStart < 1*1000 And Norm_LLeg > 0
+    NormaliseLLeg()
+  EndWhile
+  Motor.Stop(LLeg, "True")
+  While EV3.Time - LStompLStart < 1*1000 'Wait if needed
+  EndWhile
+EndSub
+Sub LegStompR
+  LStompRStart = EV3.Time
+  Motor.Start(RLeg, 40) 'Right leg up
+  NormaliseRLeg()
+  While EV3.Time - LStompRStart < 0.5*1000 And Norm_RLeg < 90
+    NormaliseRLeg()
+  EndWhile
+  Motor.Stop(Rleg, "True")
+  While EV3.Time - LStompRStart < 0.5*1000 'Wait if needed
+  EndWhile
+  Motor.Start(RLeg, -40) 'Right leg down
+  NormaliseRLeg()
+  While EV3.Time - LStompRStart < 1*1000 And Norm_RLeg > 0
+    NormaliseRLeg()
+  EndWhile
+  Motor.Stop(RLeg, "True")
+  While EV3.Time - LStompRStart < 1*1000 'Wait if needed
+  EndWhile
+EndSub
+
+Sub VerseStartKnee '8 seconds
+  '4 SECONDS BENDING - 1S EACH LEG, LKNEE FIRST
+  KneeBendL() 'Left
+  KneeBendR() 'Right
+  KneeBendL() 'Left
+  KneeBendR() 'Right 
+  '4 SECONDS NOTHING
+EndSub
+Sub KneeBendL
+  KBendLStart = EV3.Time
+  Motor.Start(LKnee, -40) 'Bend knee backwards
+  NormaliseLKnee()
+  While EV3.Time - KBendLStart < 0.5*1000 And Norm_LKnee > -90
+    NormaliseLKnee()
+  EndWhile
+  Motor.Stop(LKnee, "True")
+  While EV3.Time - KBendLStart < 0.5*1000 'Wait if needed
+  EndWhile
+  Motor.Start(LKnee, 40) 'Knee back to rest position
+  NormaliseLKnee()
+  While EV3.Time - KBendLStart < 1*1000 And Norm_LKnee < 0
+    NormaliseLKnee()
+  EndWhile
+  Motor.Stop(LKnee, "True")
+  While EV3.Time - KBendLStart < 1*1000 'Wait if needed
+  EndWhile
+EndSub
+Sub KneeBendR
+  KBendRStart = EV3.Time
+  Motor.Start(RKnee, -40) 'Bend knee backwards
+  NormaliseRKnee()
+  While EV3.Time - KBendRStart < 0.5*1000 And Norm_RKnee > -90
+    NormaliseRKnee()
+  EndWhile
+  Motor.Stop(RKnee, "True")
+  While EV3.Time - KBendRStart < 0.5*1000 'Wait if needed
+  EndWhile
+  Motor.Start(RKnee, 40) 'Knee back to rest position
+  NormaliseRKnee()
+  While EV3.Time - KBendRStart < 1*1000 And Norm_RKnee < 0
+    NormaliseRKnee()
+  EndWhile
+  Motor.Stop(RKnee, "True")
+  While EV3.Time - KBendRStart < 1*1000 'Wait if needed
+  EndWhile
+EndSub
+
+Sub VerseMove '4s wait, 8s move
+  VerseMoveStart = EV3.Time
+  Received = "False"
+  While EV3.Time - VerseMoveStart < 4*1000 and Received = "False" '4 seconds of checking for message
+    LCD.Clear()
+    If Mailbox.Receive(MailID) = "Moonwalk" or Mailbox.Receive(MailID) = "Pirouette" or Mailbox.Receive(MailID) = "Splits" Then 'If a new message has been received
+      Move = Mailbox.Receive(MailID)
+      LCD.Write(20, 40, Move)
+      Speaker.Tone(50, 1000, 500)
+      Received = "True"
+    EndIf
+  EndWhile
+  While EV3.Time - VerseMoveStart < 4*1000 'Wait until 4 seconds has passed
+  EndWhile
+  If Move = "Moonwalk" Then
+    Moonwalk()
+  ElseIf Move = "Pirouette" Then
+    Thread.Run = PirouetteLeg
+    Thread.Run = PirouetteKnee
+  Else
+    Splits()
+  EndIf
+EndSub
+
+Sub VerseEnd '9 seconds (8 seconds walking)
+  ReadyL() '1s
+  WalkR()
+  WalkL() '2s
+  WalkR()
+  WalkL() '3s
+  WalkR() 
+  WalkL() '4s
+  WalkR()
+  WalkL() '5s
+  WalkR()
+  WalkL() '6s
+  WalkR()
+  WalkL() '7s
+  WalkR()
+  WalkL() '8s
+  ReadyR()
+EndSub
+
+Sub Moonwalk '8 seconds
+  MoonwalkStart = EV3.Time
+  '1S NOTHING (TURNING)
+  While EV3.Time - MoonwalkStart < 1*1000
+  EndWhile
+  '2S WALK 
+  ReadyL()
+  WalkR()
+  WalkL()
+  ReadyR()
+  '2S NOTHING (TURNING)
+  While EV3.Time - MoonwalkStart < 5*1000
+  EndWhile
+  '2S WALK 
+  ReadyL()
+  WalkR()
+  WalkL()
+  ReadyR()
+  '1S NOTHING (TURNING)
+  While EV3.Time - MoonwalkStart < 8*1000
+  EndWhile
+EndSub
+
+Sub PirouetteLeg '8 seconds
+  PirouetteLStart = EV3.Time
+  '1S NOTHING, ARM MOVES
+  While EV3.Time - PirouetteLStart < 1*1000
+  EndWhile
+  '6S: GET LEG UP IN FIRST 0.5S, LEG DOWN IN LAST 0.5S
+  Motor.Start(LLeg, 20) 'Left leg up
+  NormaliseLLeg()
+  While EV3.Time - PirouetteLStart < 1.5*1000 And Norm_LLeg < 45
+    NormaliseLLeg()
+  EndWhile
+  Motor.Stop(LLeg, "True")
+  While EV3.Time - PirouetteLStart < 6.5*1000 'Wait
+  EndWhile
+  Motor.Start(LLeg, -20) 'Left leg down
+  NormaliseLLeg()
+  While EV3.Time - PirouetteLStart < 7*1000 And Norm_LLeg > 0
+    NormaliseLLeg()
+  EndWhile 
+  Motor.Stop(LLeg, "True")
+  '1S NOTHING, ARM MOVES
+  While EV3.Time - PirouetteLStart < 8*1000 
+  EndWhile
+EndSub
+
+Sub PirouetteKnee '8 seconds
+  PirouetteKStart = EV3.Time
+  '1S NOTHING
+  While EV3.Time - PirouetteKStart < 1*1000
+  EndWhile
+  '6S: BEND KNEE IN FIRST 0.5S, RETURN KNEE IN LAST 0.5S
+  Motor.Start(LKnee, -40) 'Bend left knee
+  NormaliseLKnee()
+  While EV3.Time - PirouetteKStart < 1.5*1000 And Norm_LKnee > -100
+    NormaliseLKnee()
+  EndWhile
+  Motor.Stop(LKnee, "True")
+  While EV3.Time - PirouetteKStart < 6.5*1000 'Wait
+  EndWhile
+  Motor.Start(LKnee, 40) 'Move knee back to rest position
+  NormaliseLKnee()
+  While EV3.Time - PirouetteKStart < 7*1000 And Norm_LKnee < 0
+    NormaliseLKnee()
+  EndWhile 
+  Motor.Stop(LKnee, "True")
+  '1S: NOTHING
+  While EV3.Time - PirouetteKStart < 8*1000
+  EndWhile
+EndSub
+
+Sub Splits '8 seconds
+  SplitsStart = EV3.Time
+  '1S NOTHING (TURNING)
+  While EV3.Time - SplitsStart < 1*1000
+  EndWhile
+  '1S RUN
+  ReadyL()
+  WalkR()
+  '1S SPLIT
+  Motor.StartSync(Legs, 80, -(80*(90/140))) 'Move into split position
+  NormaliseLLeg()
+  NormaliseRLeg()
+  While EV3.Time - SplitsStart < 2.5*1000 And Norm_LLeg < 100 And Norm_RLeg > -50
+    NormaliseLLeg()
+    NormaliseRLeg()
+  EndWhile
+  Motor.Stop(Legs, "True")
+  While EV3.Time - SplitsStart < 2.5*1000
+  EndWhile
+  Motor.StartSync(Legs, -80, 40) 'Move to rest position
+  NormaliseLLeg()
+  NormaliseRLeg()
+  While EV3.Time - SplitsStart < 3*1000 And Norm_LLeg > 0 And Norm_RLeg < 0
+    NormaliseLLeg()
+    NormaliseRLeg()
+  EndWhile
+  Motor.Stop(Legs, "True")
+  '2S NOTHING (TURNING)
+  While EV3.Time - SplitsStart < 5*1000
+  EndWhile
+  '1S RUN
+  ReadyL()
+  WalkR()
+  '1S SPLIT
+  Motor.StartSync(Legs, 80, -(80*(90/140))) 'Move into split position
+  NormaliseLLeg()
+  NormaliseRLeg()
+  While EV3.Time - SplitsStart < 6.5*1000 And Norm_LLeg < 100 And Norm_RLeg > -50
+    NormaliseLLeg()
+    NormaliseRLeg()
+  EndWhile
+  Motor.Stop(Legs, "True")
+  While EV3.Time - SplitsStart < 6.5*1000
+  EndWhile
+  Motor.StartSync(Legs, -80, 40) 'Move to rest position
+  NormaliseLLeg()
+  NormaliseRLeg()
+  While EV3.Time - SplitsStart < 7*1000 And Norm_LLeg > 0 And Norm_RLeg < 0
+    NormaliseLLeg()
+    NormaliseRLeg()
+  EndWhile
+  Motor.Stop(Legs, "True")
+  '1S NOTHING (TURNING)
+  While EV3.Time - SplitsStart < 8*1000
+  EndWhile
+EndSub

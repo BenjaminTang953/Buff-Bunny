@@ -1,0 +1,857 @@
+'Finalised
+
+'Brick Communications
+Mailbox.Connect("HEAD")
+MailID = Mailbox.Create("MBA")
+
+'Motor Variables
+RightElbow = "A"
+RightShoulder = "B"
+LeftShoulder = "C"
+LeftElbow = "D"
+Shoulders = "BC"
+Elbows = "AD"
+
+'CALIBRATION************************************************************************************************************
+
+'Defining Other Variables
+TestPower = 50
+
+'Calibration for Right Elbow
+Motor.Start(RightElbow, -TestPower)
+TestMotor = RightElbow
+Calibration()
+Max_RightElbow = Motor.GetCount(TestMotor)
+'Normalising Right Elbow
+Deg_RightElbow = Motor.GetCount(RightElbow)
+N_RightElbow = Deg_rightElbow/Max_RightElbow*100-50
+Norm_RightElbow = N_RightElbow/50*100
+'Right Elbow in Rest Position
+Motor.Start(RightElbow, -TestPower)
+Deg_RightElbow = Motor.GetCount(RightElbow)
+While Norm_RightElbow > 0
+  NormaliseRightElbow()
+EndWhile
+Motor.Stop(RightElbow, "True")
+Program.Delay(1000)
+
+'Calibration for Right Shoulder
+Motor.Start(RightShoulder, -TestPower)
+TestMotor = RightShoulder
+Calibration()
+Max_RightShoulder = Motor.GetCount(TestMotor)
+'Normalising Right Shoulder
+Deg_RightShoulder = Motor.GetCount(RightShoulder)
+N_RightShoulder = Deg_RightShoulder/Max_RightShoulder*100-35
+Norm_RightShoulder = N_RightShoulder/65*100
+'Right Shoulder in Rest Position
+Motor.Start(RightShoulder, -TestPower)
+Deg_RightShoulder = Motor.GetCount(RightShoulder)
+While Norm_RightShoulder > 0
+  NormaliseRightShoulder()
+EndWhile
+Motor.Stop(RightShoulder, "True")
+Program.Delay(1000)
+
+'Calibration for Left Shoulder
+Motor.Start(LeftShoulder, -TestPower)
+TestMotor = LeftShoulder
+Calibration()
+Max_LeftShoulder = Motor.GetCount(TestMotor)
+'Normalising Left Shoulder
+Deg_LeftShoulder = Motor.GetCount(LeftShoulder)
+N_LeftShoulder = Deg_LeftShoulder/Max_LeftShoulder*100-35
+Norm_LeftShoulder = N_LeftShoulder/65*100
+'Left Shoulder in Rest Position
+Motor.Start(LeftShoulder, -TestPower)
+Deg_LeftShoulder = Motor.GetCount(LeftShoulder)
+While Norm_LeftShoulder > 0
+  NormaliseLeftShoulder()
+EndWhile
+Motor.Stop(LeftShoulder, "True")
+Program.Delay(1000)
+
+'Calibration for Left Elbow
+Motor.Start(LeftElbow, TestPower)
+TestMotor = LeftElbow
+LECallibration()
+Max_LeftElbow = Motor.GetCount(TestMotor)
+'Normalising Left Elbow
+Deg_LeftElbow = Motor.GetCount(LeftElbow)
+N_LeftElbow = Deg_LeftElbow/Max_LeftElbow*100-50
+Norm_LeftElbow = N_LeftElbow/50*100
+'Left Elbow in Rest Position
+Motor.Start(LeftElbow, TestPower)
+Deg_LeftElbow = Motor.GetCount(LeftShoulder)
+While Norm_LeftElbow > 0
+  NormaliseLeftElbow()
+EndWhile
+Motor.Stop(LeftElbow, "True")
+Program.Delay(1000)
+
+'Sub Programs
+Sub TestExtreme
+  FirstReading = Motor.GetCount(TestMotor)
+  Program.Delay(100)
+  SecondReading = Motor.GetCount(TestMotor)
+  If FirstReading = SecondReading Then
+    exit = "True"
+  EndIf 
+EndSub
+Sub Calibration
+  exit = "False"
+  While exit = "False"
+    TestExtreme()
+  EndWhile
+  Motor.Stop(TestMotor, "True")
+  Motor.ResetCount(TestMotor)
+  Motor.Start(TestMotor, TestPower)
+  exit = "False"
+  While exit = "False"
+    TestExtreme()
+  EndWhile
+  Motor.Stop(TestMotor, "True")
+EndSub
+Sub LECallibration
+  exit = "False"
+  While exit = "False"
+    TestExtreme()
+  EndWhile
+  Motor.Stop(TestMotor, "True")
+  Motor.ResetCount(TestMotor)
+  Motor.Start(TestMotor, -TestPower)
+  exit = "False"
+  While exit = "False"
+    TestExtreme()
+  EndWhile
+  Motor.Stop(TestMotor, "True")
+EndSub
+'Normalising Motor Degrees
+Sub NormaliseRightElbow
+  Deg_RightElbow = Motor.GetCount(RightElbow)
+  N_RightElbow = Deg_rightElbow/Max_RightElbow*100-50
+  Norm_RightElbow = N_RightElbow/50*100
+EndSub
+Sub NormaliseRightShoulder
+  Deg_RightShoulder = Motor.GetCount(RightShoulder)
+  N_RightShoulder = Deg_RightShoulder/Max_RightShoulder*100-35
+  Norm_RightShoulder = N_RightShoulder/65*100
+EndSub
+Sub NormaliseLeftShoulder
+  Deg_LeftShoulder = Motor.GetCount(LeftShoulder)
+  N_LeftShoulder = Deg_LeftShoulder/Max_LeftShoulder*100-35
+  Norm_LeftShoulder = N_LeftShoulder/65*100
+EndSub
+Sub NormaliseLeftElbow
+  Deg_LeftElbow = Motor.GetCount(LeftElbow)
+  N_LeftElbow = Deg_LeftElbow/Max_LeftElbow*100-50
+  Norm_LeftElbow = N_LeftElbow/50*100
+EndSub
+
+'Touch sensor start
+Start = "False"
+LCD.Clear()
+While Start = "False"
+  If Mailbox.IsAvailable(MailID) Then  
+    If Mailbox.Receive(MailID) = "Start" Then
+      LCD.Write(20, 20, "Start")
+      Start = "True"
+    EndIf
+  EndIf
+EndWhile
+
+'CHOREOGRAPHY*****************************************************************************************************************
+StartTime = EV3.Time
+Speaker.Tone(20, 1000, 50)
+'Chorus
+While EV3.Time - StartTime < 1*1000
+EndWhile
+Thread.Run = Chorus
+While EV3.Time - StartTime < 17*1000
+EndWhile
+Thread.Run = Chorus
+'Verse
+While EV3.Time - StartTime < 37*1000
+EndWhile
+Thread.Run = VerseStartShoulder
+Thread.Run = VerseStartElbow
+While EV3.Time - StartTime < 45*1000
+EndWhile
+Thread.Run = VerseMove
+While EV3.Time - StartTime < 57*1000
+EndWhile
+Thread.Run = VerseEndShoulder
+Thread.Run = VerseEndElbow
+'Chorus
+While EV3.Time - StartTime < 66*1000
+EndWhile
+Thread.Run = Chorus
+While EV3.Time - StartTime < 82*1000
+EndWhile
+Thread.Run = Chorus
+While EV3.Time - StartTime < 800*1000
+EndWhile
+
+
+'SUB PROGRAMS
+Sub Chorus
+  'LINE 1: BOTH ARMS UP
+  ChorusLine1Start = EV3.Time
+  Motor.Start(Shoulders, 10)
+  NormaliseRightShoulder()
+  NormaliseLeftShoulder()
+  While EV3.Time - ChorusLine1Start < 4*1000 And Norm_RightShoulder < 100 And Norm_LeftShoulder < 100
+    NormaliseRightShoulder()
+    NormaliseLeftShoulder()
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - ChorusLine1Start < 4*1000
+  EndWhile
+  'LINE 2: ALTERNATING ARMS
+  ChorusLine2Start = EV3.Time
+  '1/8 alternations - left down
+  Motor.Start(LeftShoulder, -15)
+  NormaliseLeftShoulder()
+  While EV3.Time - ChorusLine2Start < 0.5*1000 And Norm_LeftShoulder > 50
+    NormaliseLeftShoulder()
+  EndWhile
+  Motor.Stop(LeftShoulder, "True")
+  While EV3.Time - ChorusLine2Start < 0.5*1000
+  EndWhile
+  '2/8 alternations - left up, right down
+  Motor.StartSync(Shoulders, -15, 30)
+  NormaliseLeftShoulder()
+  NormaliseRightShoulder()
+  While EV3.Time - ChorusLine2Start < 1*1000 And Norm_LeftShoulder < 100 And Norm_RightShoulder > 50
+    NormaliseLeftShoulder()
+    NormaliseRightShoulder()
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - ChorusLine2Start < 1*1000
+  EndWhile
+  '3/8 alternations - left down, right up
+  Motor.StartSync(Shoulders, 30, -15)
+  NormaliseLeftShoulder()
+  NormaliseRightShoulder()
+  While EV3.Time - ChorusLine2Start < 1.5*1000 And Norm_LeftShoulder > 50 And Norm_RightShoulder < 100
+    NormaliseLeftShoulder()
+    NormaliseRightShoulder()
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - ChorusLine2Start <1.5*1000
+  EndWhile
+  '4/8 alternations - left up, right down
+  Motor.StartSync(Shoulders, -15, 30)
+  NormaliseLeftShoulder()
+  NormaliseRightShoulder()
+  While EV3.Time - ChorusLine2Start < 2*1000 And Norm_LeftShoulder < 100 And Norm_RightShoulder > 50
+    NormaliseLeftShoulder()
+    NormaliseRightShoulder()
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - ChorusLine2Start < 2*1000
+  EndWhile
+  '5/8 alternations - left down, right up
+  Motor.StartSync(Shoulders, 30, -15)
+  NormaliseLeftShoulder()
+  NormaliseRightShoulder()
+  While EV3.Time - ChorusLine2Start < 2.5*1000 And Norm_LeftShoulder > 50 And Norm_RightShoulder < 100
+    NormaliseLeftShoulder()
+    NormaliseRightShoulder()
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - ChorusLine2Start < 2.5*1000
+  EndWhile
+  '6/8 alternations - left up, right down
+  Motor.StartSync(Shoulders, -15, 30)
+  NormaliseLeftShoulder()
+  NormaliseRightShoulder()
+  While EV3.Time - ChorusLine2Start < 3*1000 And Norm_LeftShoulder < 100 And Norm_RightShoulder > 50
+    NormaliseLeftShoulder()
+    NormaliseRightShoulder()
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - ChorusLine2Start < 3*1000
+  EndWhile
+  '7/8 alternations - left down, right up
+  Motor.StartSync(Shoulders, 30, -15)
+  NormaliseLeftShoulder()
+  NormaliseRightShoulder()
+  While EV3.Time - ChorusLine2Start < 3.5*1000 And Norm_LeftShoulder > 50 And Norm_RightShoulder < 100
+    NormaliseLeftShoulder()
+    NormaliseRightShoulder()
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - ChorusLine2Start < 3.5*1000
+  EndWhile
+  '8/8 alternations - left up, right down
+  Motor.StartSync(Shoulders, -15, 30)
+  NormaliseLeftShoulder()
+  NormaliseRightShoulder()
+  While EV3.Time - ChorusLine2Start < 4*1000 And Norm_LeftShoulder < 100 And Norm_RightShoulder > 50
+    NormaliseLeftShoulder()
+    NormaliseRightShoulder()
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - ChorusLine2Start < 4*1000
+  EndWhile
+  'LINE 3: DROP RIGHT ARM
+  ChorusLine3Start = EV3.Time
+  Motor.Start(RightShoulder, -50)
+  NormaliseRightShoulder()
+  While EV3.Time - ChorusLine3Start < 1*1000 And Norm_RightShoulder > 0
+    NormaliseRightShoulder()
+  EndWhile
+  Motor.Stop(RightShoulder, "True")
+  While EV3.Time - ChorusLine3Start < 4*1000
+  EndWhile
+  'LINE 4: DROP LEFT ARM, THEN BEND ELBOWS 
+  ChorusLine4Start = EV3.Time
+  'drop left arm
+  Motor.Start(LeftShoulder, -50)
+  NormaliseLeftShoulder()
+  While EV3.Time - ChorusLine4Start < 1*1000 And Norm_LeftShoulder > 0
+    NormaliseLeftShoulder()
+  EndWhile
+  Motor.Stop(LeftShoulder, "True")
+  While EV3.Time - ChorusLine4Start < 1*1000
+  EndWhile
+  'bend elbow up
+  Motor.StartSync(Elbows, 40, -40)
+  NormaliseLeftElbow()
+  NormaliseRightElbow()
+  While EV3.Time - ChorusLine4Start < 1.5*1000 And Norm_LeftElbow < 90 and Norm_RightElbow < 90
+    NormaliseLeftElbow()
+    NormaliseRightElbow()
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.Time - ChorusLine4Start < 3.5*1000
+  EndWhile
+  'bend elbow down
+  Motor.StartSync(Elbows, -40, 40)
+  NormaliseLeftElbow()
+  NormaliseRightElbow()
+  While EV3.Time - ChorusLine4Start < 4*1000 And Norm_LeftElbow > 0 and Norm_RightElbow > 0
+    NormaliseLeftElbow()
+    NormaliseRightElbow()
+  EndWhile
+  Motor.Stop(Elbows, "True")
+EndSub
+
+Sub VerseStartShoulder '8 seconds
+  SVerseStartStart = EV3.Time
+  '4S: ALTERNATING, 1S EACH: RIGHT ARM FIRST
+  Motor.Start(RightShoulder, 40) 'Right arm up
+  NormaliseRightShoulder()
+  While EV3.Time - SVerseStartStart < 0.5*1000 And Norm_RightShoulder < 100
+    NormaliseRightShoulder()
+  EndWhile
+  Motor.Stop(RightShoulder, "True")
+  While EV3.Time - SVerseStartStart < 0.5*1000
+  EndWhile
+  Motor.Start(RightShoulder, -40) 'Right arm down
+  While EV3.Time - SVerseStartStart < 1*1000 And Norm_RightShoulder > 0
+    NormaliseRightShoulder()
+  EndWhile
+  Motor.Stop(RightShoulder, "True")
+  While EV3.Time - SVerseStartStart < 1*1000
+  EndWhile
+  Motor.Start(LeftShoulder, 40) 'Left arm up
+  NormaliseLeftShoulder()
+  While EV3.Time - SVerseStartStart < 1.5*1000 And Norm_LeftShoulder < 100
+    NormaliseLeftShoulder()
+  EndWhile
+  Motor.Stop(LeftShoulder, "True")
+  While EV3.Time - SVerseStartStart < 1.5*1000
+  EndWhile
+  Motor.Start(LeftShoulder, -40) 'Left arm down
+  While EV3.Time - SVerseStartStart < 2*1000 And Norm_LeftShoulder > 0
+    NormaliseLeftShoulder()
+  EndWhile
+  Motor.Stop(LeftShoulder, "True")
+  While EV3.Time - SVerseStartStart < 2*1000
+  EndWhile
+  Motor.Start(RightShoulder, 40) 'Right arm up
+  NormaliseRightShoulder()
+  While EV3.Time - SVerseStartStart < 2.5*1000 And Norm_RightShoulder < 100
+    NormaliseRightShoulder()
+  EndWhile
+  Motor.Stop(RightShoulder, "True")
+  While EV3.Time - SVerseStartStart < 2.5*1000
+  EndWhile
+  Motor.Start(RightShoulder, -40) 'Right arm down
+  While EV3.Time - SVerseStartStart < 3*1000 And Norm_RightShoulder > 0
+    NormaliseRightShoulder()
+  EndWhile
+  Motor.Stop(RightShoulder, "True")
+  While EV3.Time - SVerseStartStart < 3*1000
+  EndWhile
+  Motor.Start(LeftShoulder, 40) 'Left arm up
+  NormaliseLeftShoulder()
+  While EV3.Time - SVerseStartStart < 3.5*1000 And Norm_LeftShoulder < 100
+    NormaliseLeftShoulder()
+  EndWhile
+  Motor.Stop(LeftShoulder, "True")
+  While EV3.Time - SVerseStartStart < 3.5*1000
+  EndWhile
+  Motor.Start(LeftShoulder, -40) 'Left arm down
+  While EV3.Time - SVerseStartStart < 4*1000 And Norm_LeftShoulder > 0
+    NormaliseLeftShoulder()
+  EndWhile
+  Motor.Stop(LeftShoulder, "True")
+  While EV3.Time - SVerseStartStart < 4*1000
+  EndWhile
+  '4S: TOGETHER, 2S UP 2S DOWN
+  Motor.Start(Shoulders, 15) 'Both arms up
+  NormaliseRightShoulder()
+  NormaliseLeftShoulder()
+  While EV3.Time - SVerseStartStart < 6*1000 And Norm_RightShoulder < 100 And Norm_LeftShoulder < 100
+    NormaliseRightShoulder()
+    NormaliseLeftShoulder()
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - SVerseStartStart < 6*1000
+  EndWhile
+  Motor.Start(Shoulders, -15) 'Both arms down
+  NormaliseRightShoulder()
+  NormaliseLeftShoulder()
+  While EV3.Time - SVerseStartStart < 8*1000 And Norm_RightShoulder > 0 And Norm_LeftShoulder > 0
+    NormaliseRightShoulder()
+    NormaliseLeftShoulder()
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - SVerseStartStart < 8*1000
+  EndWhile
+EndSub
+
+Sub VerseStartElbow '8 seconds
+  EVerseStartStart = EV3.Time
+  '4S: ALTERNATING BENDS
+  While EV3.Time - EVerseStartStart < 0.5*1000 'Wait
+  EndWhile
+  Motor.Start(RightElbow, 40) 'Right elbow up
+  NormaliseRightElbow()
+  While EV3.Time - EVerseStartStart < 0.75*1000 And Norm_RightElbow < 80
+    NormaliseRightElbow()
+  EndWhile
+  Motor.Stop(RightElbow, "True")
+  While EV3.Time - EVerseStartStart < 0.75*1000
+  EndWhile
+  Motor.Start(RightElbow, -40) 'Right elbow down
+  NormaliseRightElbow()
+  While EV3.Time - EVerseStartStart < 1*1000 And Norm_RightElbow > 0
+    NormaliseRightElbow()
+  EndWhile
+  Motor.Stop(RightElbow, "True")
+  While EV3.Time - EVerseStartStart < 1*1000
+  EndWhile
+  While EV3.Time - EVerseStartStart < 1.5*1000 'Wait
+  EndWhile
+  Motor.Start(LeftElbow, -40) 'Left elbow up
+  NormaliseLeftElbow()
+  While EV3.Time - EVerseStartStart < 1.75*1000 And Norm_LeftElbow < 80
+    NormaliseLeftElbow()
+  EndWhile
+  Motor.Stop(LeftElbow, "True")
+  While EV3.Time - EVerseStartStart < 1.75*1000
+  EndWhile
+  Motor.Start(LeftElbow, 40) 'Left elbow down
+  NormaliseLeftElbow()
+  While EV3.Time - EVerseStartStart < 2*1000 And Norm_LeftElbow > 0
+    NormaliseLeftElbow()
+  EndWhile
+  Motor.Stop(LeftElbow, "True")
+  While EV3.Time - EVerseStartStart < 2*1000
+  EndWhile
+  While EV3.Time - EVerseStartStart < 2.5*1000 'Wait
+  EndWhile
+  Motor.Start(RightElbow, 40) 'Right elbow up
+  NormaliseRightElbow()
+  While EV3.Time - EVerseStartStart < 2.75*1000 And Norm_RightElbow < 80
+    NormaliseRightElbow()
+  EndWhile
+  Motor.Stop(RightElbow, "True")
+  While EV3.Time - EVerseStartStart < 2.75*1000
+  EndWhile
+  Motor.Start(RightElbow, -40) 'Right elbow down
+  NormaliseRightElbow()
+  While EV3.Time - EVerseStartStart < 3*1000 And Norm_RightElbow > 0
+    NormaliseRightElbow()
+  EndWhile
+  Motor.Stop(RightElbow, "True")
+  While EV3.Time - EVerseStartStart < 3*1000
+  EndWhile
+  While EV3.Time - EVerseStartStart < 3.5*1000 'Wait
+  EndWhile
+  Motor.Start(LeftElbow, -40) 'Left elbow up
+  NormaliseLeftElbow()
+  While EV3.Time - EVerseStartStart < 3.75*1000 And Norm_LeftElbow < 80
+    NormaliseLeftElbow()
+  EndWhile
+  Motor.Stop(LeftElbow, "True")
+  While EV3.Time - EVerseStartStart < 3.75*1000
+  EndWhile
+  Motor.Start(LeftElbow, 40) 'Left elbow down
+  NormaliseLeftElbow()
+  While EV3.Time - EVerseStartStart < 4*1000 And Norm_LeftElbow > 0
+    NormaliseLeftElbow()
+  EndWhile
+  Motor.Stop(LeftElbow, "True")
+  While EV3.Time - EVerseStartStart < 4*1000
+  EndWhile
+  '4S: BEND TOGETHER 
+  While EV3.Time - EVerseStartStart < 6*1000 'Wait
+  EndWhile
+  Motor.StartSync(Elbows, 15, -15) 'Both elbows up
+  NormaliseRightElbow()
+  NormaliseLeftElbow()
+  While EV3.Time - EVerseStartStart < 7*1000 And Norm_RightElbow < 80 And Norm_LeftElbow < 80
+    NormaliseRightElbow()
+    NormaliseLeftElbow()
+  EndWhile 
+  Motor.Stop(Elbows, "False")
+  Motor.StartSync(Elbows, -15, 15) 'Both elbows down
+  NormaliseRightElbow()
+  NormaliseLeftElbow()
+  While EV3.Time - EVerseStartStart < 8*1000 And Norm_RightElbow > 0 And Norm_LeftElbow > 0
+    NormaliseRightElbow()
+    NormaliseLeftElbow()
+  EndWhile
+  Motor.Stop(ELbows, "True")
+  While EV3.Time - EVerseStartStart < 8*1000
+  EndWhile
+EndSub
+
+Sub VerseEndShoulder '9 seconds
+  SVerseEndStart = EV3.Time
+  '4S: LEFT ARM, 2S UP 2S DOWN
+  Motor.Start(LeftShoulder, 15) 'Left arm up
+  NormaliseLeftShoulder()
+  While EV3.Time - SVerseEndStart < 2*1000 And Norm_LeftShoulder < 100
+    NormaliseLeftShoulder()
+  EndWhile
+  Motor.Stop(LeftShoulder, "True")
+  While EV3.Time - SVerseEndStart < 2*1000
+  EndWhile
+  Motor.Start(LeftShoulder, -15) 'Left arm down
+  NormaliseLeftShoulder()
+  While EV3.Time - SVerseEndStart < 4*1000 And Norm_LeftShoulder > 0
+    NormaliseLeftShoulder()
+  EndWhile
+  Motor.Stop(LeftShoulder, "True")
+  While EV3.Time - SVerseEndStart < 4*1000
+  EndWhile
+  '5S: TOGETHER, 1.5S UP, 1.5S DOWN, 1S UP, 1S DOWN
+  Motor.Start(Shoulders, 20) 'Both arms up
+  NormaliseRightShoulder()
+  NormaliseLeftShoulder()
+  While EV3.Time - SVerseEndStart < 5.5*1000 And Norm_RightShoulder < 100 And Norm_LeftShoulder < 100
+    NormaliseRightShoulder()
+    NormaliseLeftShoulder()
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - SVerseEndStart < 5.5*1000
+  EndWhile
+  Motor.Start(Shoulders, -20) 'Both arms down
+  NormaliseRightShoulder()
+  NormaliseLeftShoulder()
+  While EV3.Time - SVerseEndStart < 7*1000 And Norm_RightShoulder > 0 And Norm_LeftShoulder > 0
+    NormaliseRightShoulder()
+    NormaliseLeftShoulder()
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - SVerseEndStart < 7*1000
+  EndWhile
+  Motor.Start(Shoulders, 20) 'Both arms up
+  NormaliseRightShoulder()
+  NormaliseLeftShoulder()
+  While EV3.Time - SVerseEndStart < 8*1000 And Norm_RightShoulder < 100 And Norm_LeftShoulder < 100
+    NormaliseRightShoulder()
+    NormaliseLeftShoulder()
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - SVerseEndStart < 8*1000
+  EndWhile
+  Motor.Start(Shoulders, -20) 'Both arms down
+  NormaliseRightShoulder()
+  NormaliseLeftShoulder()
+  While EV3.Time - SVerseEndStart < 9*1000 And Norm_RightShoulder > 0 And Norm_LeftShoulder > 0
+    NormaliseRightShoulder()
+    NormaliseLeftShoulder()
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - SVerseEndStart < 9*1000
+  EndWhile
+EndSub
+
+Sub VerseEndElbow '9 seconds
+  EVerseEndStart = EV3.Time
+  '4S: NOTHING
+  While EV3.Time - EVerseEndStart < 4*1000 'Wait
+  EndWhile
+  '5S: BEND BOTH ELBOWS TOWARDS END
+  While EV3.Time - EVerseEndStart < 8*1000 'Wait some more
+  EndWhile
+  Motor.StartSync(Elbows, 20, -20) 'Elbows up
+  NormaliseRightElbow()
+  NormaliseLeftElbow()
+  While EV3.Time - EVerseEndStart < 8.5*1000 And Norm_RightElbow < 80 And Norm_LeftElbow < 80
+    NormaliseRightElbow()
+    NormaliseLeftElbow()
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.Time - EVerseEndStart < 8.5*1000
+  EndWhile
+  Motor.StartSync(Elbows, -20, 20) 'Elbows down
+  NormaliseRightElbow()
+  NormaliseLeftElbow()
+  While EV3.Time - EVerseEndStart < 9*1000 And Norm_RightElbow > 0 And Norm_LeftElbow > 0
+    NormaliseRightElbow()
+    NormaliseLeftElbow()
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.Time - EVerseEndStart < 9*1000
+  EndWhile
+EndSub
+
+Sub VerseMove '4s + 8 seconds of chosen dance move
+  VerseMoveStart = EV3.Time
+  Received = "False"
+  While EV3.Time - VerseMoveStart < 4*1000 and Received = "False" '4 seconds of checking for message
+    LCD.Clear()
+    If Mailbox.Receive(MailID) = "Moonwalk" or Mailbox.Receive(MailID) = "Pirouette" or Mailbox.Receive(MailID) = "Splits" Then 'If a new message has been received
+      Move = Mailbox.Receive(MailID)
+      LCD.Write(20, 40, Move)
+      Speaker.Tone(50, 1000, 500)
+      Received = "True"
+    EndIf
+  EndWhile
+  While EV3.Time - VerseMoveStart < 4*1000 'Wait until 4 seconds has passed
+  EndWhile
+  If Move = "Moonwalk" Then
+    Thread.Run = MoonwalkShoulder
+    Thread.Run = MoonwalkElbow
+  ElseIf Move = "Pirouette" Then
+    Thread.Run = PirouetteShoulder
+    Thread.Run = PirouetteElbow
+  Else
+    Splits()
+  EndIf
+EndSub
+  
+Sub MoonwalkShoulder '8 seconds
+  MoonwalkSStart = EV3.Time
+  '1S ARM UP
+  Motor.Start(RightShoulder, 40)
+  NormaliseRightShoulder()
+  While EV3.Time - MoonwalkSStart < 1*1000 And Norm_RightShoulder < 100
+    NormaliseRightShoulder()
+  EndWhile
+  Motor.Stop(RightShoulder, "True")
+  '6S HOLD
+  While EV3.Time - MoonwalkSStart < 7*1000
+  EndWhile
+  '1S ARM DOWN
+  Motor.Start(RightShoulder, -40)
+  NormaliseRightShoulder()
+  While EV3.Time - MoonwalkSStart < 8*1000 And Norm_RightShoulder > 0
+    NormaliseRightShoulder()
+  EndWhile 
+  Motor.Stop(RightShoulder, "True")
+  While EV3.Time - MoonwalkSStart < 8*1000
+  EndWhile
+EndSub
+
+Sub MoonwalkElbow '8 seconds
+  MoonwalkEStart = EV3.Time
+  '1S BEND ELBOW 
+  Motor.Start(RightElbow, 40)
+  NormaliseRightElbow()
+  While EV3.Time - MoonwalkEStart < 1*1000 And Norm_RightElbow < 100
+    NormaliseRightElbow()
+  EndWhile
+  Motor.Stop(RightElbow, "True")
+  '6S HOLD
+  While EV3.Time - MoonwalkEStart < 7*1000
+  EndWhile
+  '6S HOLD
+  '1S MOVE TO REST POSITION
+  Motor.Start(RightElbow, -40)
+  NormaliseRightElbow()
+  While EV3.Time - MoonwalkEStart < 8*1000 And Norm_RightElbow > 0
+    NormaliseRightElbow()
+  EndWhile 
+  Motor.Stop(RightElbow, "True")
+  While EV3.Time - MoonwalkEStart < 8*1000
+  EndWhile
+EndSub
+
+Sub PirouetteShoulder '8 seconds
+  SPirouetteStart = EV3.Time
+  'SHOULDERS UP, SHOULDERS DOWN
+  Motor.Start(Shoulders, 15) 'Shoulders up
+  NormaliseRightShoulder()
+  NormaliseLeftShoulder()
+  While EV3.Time - SPirouetteStart < 1*1000 And Norm_RightShoulder < 30 And Norm_LeftShoulder < 30
+    NormaliseRightShoulder()
+    NormaliseLeftShoulder()
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - SPirouetteStart < 1*1000
+  EndWhile
+  While EV3.Time - SPirouetteStart < 7*1000 'Keep arms there while robot spins
+  EndWhile
+  Motor.Start(Shoulders, -15) 'Shoulders down
+  NormaliseRightShoulder()
+  NormaliseLeftShoulder()
+  While EV3.Time - SPirouetteStart < 8*1000 And Norm_RightShoulder > 0 And Norm_LeftShoulder > 0
+    NormaliseRightShoulder()
+    NormaliseLeftShoulder()
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - SPirouetteStart < 8*1000
+  EndWhile
+EndSub
+
+Sub PirouetteElbow '8 seconds
+  EPirouetteStart = EV3.Time
+  'ELBOWS UP, ELBOWS DOWN
+  Motor.StartSync(Elbows, 15, -15) 'Elbows up
+  NormaliseRightElbow()
+  NormaliseLeftElbow()
+  While EV3.Time - EPirouetteStart < 1*1000 And Norm_RightElbow < 45 And Norm_LeftElbow < 45
+    NormaliseRightElbow()
+    NormaliseLeftElbow()
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.Time - EPirouetteStart < 1*1000
+  EndWhile
+  While EV3.Time - EPirouetteStart < 7*1000 'Keep arms there while robot spins
+  EndWhile
+  Motor.StartSync(Elbows, -15, 15) 'Elbows down
+  NormaliseRightElbow()
+  NormaliseLeftElbow()
+  While EV3.Time - EPirouetteStart < 8*1000 And Norm_RightElbow > 0 And Norm_LeftElbow > 0
+    NormaliseRightElbow()
+    NormaliseLeftElbow()
+  EndWhile
+  Motor.Stop(Elbows, "True")
+  While EV3.Time - EPirouetteStart < 8*1000
+  EndWhile
+EndSub
+
+Sub Splits '8 seconds
+  SplitsStart = EV3.Time
+  While EV3.Time - SplitsStart < 1*1000 'Wait while robot turns
+  EndWhile
+  '1S: RUN
+  Motor.StartSync(Shoulders, 10, -10) 'First 0.5 seconds
+  NormaliseRightShoulder()
+  NormaliseLeftShoulder()
+  While EV3.Time - SplitsStart < 1.5*1000 And Norm_RightShoulder < 40 And Norm_LeftShoulder > -40
+    NormaliseRightShoulder()
+    NormaliseLeftShoulder()
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - SplitsStart < 1.5*1000
+  EndWhile
+  Motor.StartSync(Shoulders, -20, 20) 'Second 0.5 seconds
+  NormaliseRightShoulder()
+  NormaliseLeftShoulder()
+  While EV3.Time - SplitsStart < 2*1000 And Norm_RightShoulder > -40 And Norm_LeftShoulder < 40
+    NormaliseRightShoulder()
+    NormaliseLeftShoulder()
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - SplitsStart < 2*1000
+  EndWhile
+  '1S: SPLITS *************************************************************THIS IS WHERE U LEFT OFF
+  Motor.StartSync(Shoulders, 80, -20) 'Robot is doing the splits
+  NormaliseRightShoulder()
+  NormaliseLeftShoulder()
+  While EV3.Time - SplitsStart < 2.5*1000 And Norm_RightShoulder < 100 And Norm_LeftShoulder > -40
+    NormaliseRightShoulder()
+    NormaliseLeftShoulder()
+  EndWhile
+  Motor.Stop(Shoulders, "False")
+  While EV3.Time - SplitsStart < 2.5*1000
+  EndWhile
+  Motor.StartSync(Shoulders, -80, 20) 'Move arms back to rest position
+  NormaliseRightShoulder()
+  NormaliseLeftShoulder()
+  While EV3.Time - SplitsStart < 3*1000 And Norm_RightShoulder > 0 And Norm_LeftShoulder < 0
+    NormaliseRightShoulder()
+    NormaliseLeftShoulder()
+  EndWhile 
+  Motor.Stop(Shoulders, "False")
+  While EV3.Time - SplitsStart < 3*1000
+  EndWhile
+  While EV3.Time -SplitsStart < 5*1000 'Wait while robot turns
+  EndWhile
+  '1S RUN
+  Motor.StartSync(Shoulders, 10, -10) 'First 0.5 seconds
+  NormaliseRightShoulder()
+  NormaliseLeftShoulder()
+  While EV3.Time - SplitsStart < 5.5*1000 And Norm_RightShoulder < 40 And Norm_LeftShoulder > -40
+    NormaliseRightShoulder()
+    NormaliseLeftShoulder()
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - SplitsStart < 5.5*1000
+  EndWhile
+  Motor.StartSync(Shoulders, -20, 20) 'Second 0.5 seconds
+  NormaliseRightShoulder()
+  NormaliseLeftShoulder()
+  While EV3.Time - SplitsStart < 6*1000 And Norm_RightShoulder > -40 And Norm_LeftShoulder < 40
+    NormaliseRightShoulder()
+    NormaliseLeftShoulder()
+  EndWhile
+  Motor.Stop(Shoulders, "True")
+  While EV3.Time - SplitsStart < 6*1000
+  EndWhile
+  '1S: SPLITS 
+  Motor.StartSync(Shoulders, 80, -20) 'Robot is doing the splits
+  NormaliseRightShoulder()
+  NormaliseLeftShoulder()
+  While EV3.Time - SplitsStart < 6.5*1000 And Norm_RightShoulder < 100 And Norm_LeftShoulder > -40
+    NormaliseRightShoulder()
+    NormaliseLeftShoulder()
+  EndWhile
+  Motor.Stop(Shoulders, "False")
+  While EV3.Time - SplitsStart < 6.5*1000
+  EndWhile
+  Motor.StartSync(Shoulders, -80, 20) 'Move arms back to rest position
+  NormaliseRightShoulder()
+  NormaliseLeftShoulder()
+  While EV3.Time - SplitsStart < 7*1000 And Norm_RightShoulder > 0 And Norm_LeftShoulder < 0
+    NormaliseRightShoulder()
+    NormaliseLeftShoulder()
+  EndWhile 
+  Motor.Stop(Shoulders, "False")
+  While EV3.Time - SplitsStart < 7*1000
+  EndWhile
+  While EV3.Time - SplitsStart < 8*1000 'Wait while robot turns
+  EndWhile
+EndSub
+
+
+'High Five Subs
+Sub Arm
+  Motor.Move("B", 30, 100, "True")
+  Program.Delay(400)
+   'Motor.Move("B", -30,  120, "True")
+EndSub
+
+Sub Elbow
+  Motor.Move("A", 30, 80, "True")
+  Program.Delay(400)
+  Motor.Move("A", -20, 50, "True")
+  Program.Delay(400)
+  Motor.Move("A", 20, 50, "True")
+EndSub
+
+Sub Elbow2
+  Motor.Move("A", -20, 55, "True")
+  Program.Delay(400)
+  Motor.Move("A", 20, 55, "True")
+EndSub

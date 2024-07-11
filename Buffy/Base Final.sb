@@ -1,0 +1,566 @@
+'Finalised
+
+'Brick Communications
+Mailbox.Connect("HEAD")
+MailID = Mailbox.Create("MBB")
+
+'Motor Variables
+FrontMotor = "B"
+LeftMotor = "A"
+RightMotor = "D"
+BackMotor = "C"
+LeftandRight = "AD"
+FrontandBack = "BC"
+All = "ABCD"
+Max = 50
+'Motor Speed Variables
+LeftMax = 100
+RightMax = 100
+FrontMax = 100
+BackMax = 100
+MotorSpeed = 80
+Speed = 100
+'Sensor Variables
+FrontSensor = 3
+LeftSensor = 4
+RightSensor = 1
+BackSensor = 2
+'Extra
+'Gyro spin while movement
+MotorSpeedZ = 0 
+MotorAngle = 0
+MotorSpeedLOld = 0 
+MotorSpeedROld = 0
+MotorSpeedFOld = 0
+MotorSpeedBOld = 0
+MotorSpeedL = 0
+MotorSpeedR = 0 
+MotorSpeedF = 0
+MotorSpeedB = 0
+MotorSpeedY = 0
+MotorSpeedX = 0 
+MotorSpeedMax = 0
+MotorStartGyro = 0
+MotorSpeedGyro = 0
+
+'Sensors
+RawFront = Vector.Init(3, 0)
+RawLeft = Vector.Init(3, 0)
+RawRight = Vector.Init(3, 0)
+RawBack = Vector.Init(3, 0)
+MaxFront = Vector.Init(3, 0)
+MaxLeft = Vector.Init(3, 0)
+MaxRight = Vector.Init(3, 0)
+MaxBack = Vector.Init(3, 0)
+MinFront = Vector.Init(3, 0)
+MinLeft = Vector.Init(3, 0)
+MinRight = Vector.Init(3, 0) 
+MinBack = Vector.Init(3, 0)
+NormFront = Vector.Init(3, 0) 
+NormLeft = Vector.Init(3, 0)
+NormRight = Vector.Init(3, 0)
+NormBack = Vector.Init(3, 0)
+
+Button = Buttons.GetClicks()
+
+'Sensor Setup RGB
+Sensor.SetMode(FrontSensor, 4)
+Sensor.SetMode(LeftSensor, 4)
+Sensor.SetMode(RightSensor, 4)
+Sensor.SetMode(BackSensor, 4)
+MaxFront = Sensor.ReadRaw(FrontSensor, 3)
+MaxLeft = Sensor.ReadRaw(FrontSensor, 3)
+MaxRight = Sensor.ReadRaw(RightSensor, 3)
+MaxBack = Sensor.ReadRaw(BackSensor, 3)
+For i = 0 To 2
+  MinFront[i] = MaxFront[i]/8
+  MinLeft[i] = MaxLeft[i]/8
+  MinRight[i] = MaxRight[i]/8
+  MinBack[i] = MaxBack[i]/8
+EndFor
+
+'Callibration
+While Button <> "D"
+  Button = Buttons.GetClicks()
+ If Button = "U" Then
+    Speaker.Tone(20, 1000, 50)
+    Buttons.Flush()
+    Motor.ResetCount(LeftMotor)
+    'Start Moving Forwards
+    Motor.StartSync(LeftandRight, LeftMax, -RightMax)
+    UpdateLightReading()
+    Button = Buttons.GetClicks()
+    While NormFront[1] > 30 And Button <> "E" '*****************
+      UpdateLightReading()
+      Button = Buttons.GetClicks()
+    EndWhile
+    'Getting Motor Readings After Seeing Line or Clicked
+    Motor.Stop(LeftandRight, "True")
+    Speaker.Tone(20, 1000, 100)
+    YDistance= Motor.GetCount(LeftMotor)
+    Program.Delay(2000)
+    'Moving Backwards to Centre
+    HalfYDistance = YDistance/2
+    Motor.MoveSync(LeftandRight, -LeftMax, RightMax, HalfYDistance, "True")
+    Speaker.Tone(20, 1500, 1000)
+    Buttons.Flush()
+  EndIf
+'Sideways Callibration 
+  If Button = "R" Then
+    Speaker.Tone(20, 1000, 50)
+    Buttons.Flush()
+    'Start Moving Sideways to Right
+    Motor.StartSync(FrontandBack, FrontMax, -BackMax)
+    UpdateLightReading()
+    Button = Buttons.GetClicks()
+    While NormRight[1] > 30 And Button <> "E" '*****************
+      UpdateLightReading()
+      Button = Buttons.GetClicks()
+    EndWhile
+    'After Seeing Right Line or Clicked
+    Motor.Stop(FrontandBack, "True")
+    Speaker.Tone(20, 1000, 100)
+    Program.Delay(1000)
+    Buttons.Flush()
+    'Start Moving Sideways to Left
+    Motor.ResetCount(BackMotor)
+    Motor.StartSync(FrontandBack, -FrontMax, BackMax)
+    UpdateLightReading()
+    Button = Buttons.GetClicks()
+    While NormLeft[1] > 30 And Button <> "E" '******************
+      UpdateLightReading()
+      Button = Buttons.GetClicks()
+    EndWhile
+    'Getting Motor Readings After Seeing Left Line or Clicked
+    Motor.Stop(FrontandBack, "True")
+    Speaker.Tone(20, 1000, 100)
+    XDistance = Motor.GetCount(BackMotor)
+    Program.Delay(2000)
+    'Moving Right to Centre
+    HalfXDistance = XDistance/2
+    Motor.MoveSync(FrontandBack, 50, -50, HalfXDistance, "True")
+    Speaker.Tone(20, 1500, 1000)
+    Buttons.Flush()
+  EndIf
+EndWhile
+
+'**************************************************************************************************************
+
+' GYRO SENSOR SETUP
+'Attatch gyro sensor to port 2
+Sensor.SetMode(2,0) 'Measure Angle
+GyroStart = Sensor.ReadRawValue(2,0)
+startangle = GyroStart
+
+'GYRO SUBS CODE CONVERTERS*************************************************************************************
+sub GyroUpdate
+' Convert Polar mode to Cartesian mode
+  MotorSpeedX = MotorSpeed * Math.Cos(Math.GetRadians(MotorAngle+45))
+  MotorSpeedY = MotorSpeed * Math.Sin(Math.GetRadians(MotorAngle+45))
+' Adjustment of current gyro reading based on initial gyro reading
+  Gyro = Sensor.ReadRawValue(2,0) 
+  MotorSpeedGyro = -(Gyro - startangle)
+ 'Calculate Motor Speed
+  MotorSpeedL = MotorSpeedX + MotorSpeedY - MotorSpeedZ - MotorSpeedGyro
+  MotorSpeedR = -MotorSpeedX - MotorSpeedY - MotorSpeedZ - MotorSpeedGyro
+  MotorSpeedF = MotorSpeedX - MotorSpeedY + MotorSpeedZ + MotorSpeedGyro
+  MotorSpeedB = -MotorSpeedX + MotorSpeedY + MotorSpeedZ + MotorSpeedGyro
+ ' Adjust Motor speeds if Maximum speed is greater than 100
+  MotorSpeedMax = Math.Max(Math.Abs(MotorSpeedL), Math.Max(Math.Abs(MotorSpeedR), Math.Max(Math.Abs(MotorSpeedF), Math.Abs(MotorSpeedB))))
+  If MotorSpeedMax > 100 then
+    MotorSpeedRatio = 100 / MotorSpeedMax
+  Else
+    MotorSpeedRatio = 1
+  EndIf 
+' Set Motor Speeds if they have changed
+  If MotorSpeedLOld <> MotorSpeedL Then
+    MotorSpeedLOld = MotorSpeedL
+    Motor.Start(LeftMotor, MotorSpeedL * MotorSpeedRatio)
+  EndIf
+  If MotorSpeedROld <> MotorSpeedR Then
+    MotorSpeedROld = MotorSpeedR
+    Motor.Start(RightMotor, MotorSpeedR * MotorSpeedRatio)
+  EndIf
+  If MotorSpeedFOld <> MotorSpeedF Then
+    MotorSpeedFOld = MotorSpeedF
+    Motor.Start(FrontMotor, -MotorSpeedF * MotorSpeedRatio)
+  EndIf
+  If MotorSpeedBOld <> MotorSpeedB Then
+    MotorSpeedBOld = MotorSpeedB
+    Motor.Start(BackMotor, -MotorSpeedB * MotorSpeedRatio)
+  EndIf
+
+  EndSub
+
+'**************************************************************************************************************
+
+'DANCE ROUTINE
+
+Start = "False"
+LCD.Clear()
+While Start = "False"
+  If Mailbox.IsAvailable(MailID) Then  
+    If Mailbox.Receive(MailID) = "Start" Then
+      LCD.Write(20, 20, "Start")
+      Start = "True"
+    EndIf
+  EndIf
+EndWhile
+
+StartTime = EV3.Time
+Speaker.Tone(20, 1000, 50)
+
+'Dance Routine
+While EV3.Time - StartTime < 1*1000
+EndWhile
+Thread.Run = Chorus
+While EV3.Time - StartTime < 17*1000
+EndWhile
+Thread.Run = Chorus
+While EV3.Time - StartTime < 33*1000
+EndWhile
+Thread.Run = ChorusEnd
+While EV3.Time - StartTime < 37*1000
+EndWhile
+Thread.Run = VerseStart
+While EV3.Time - StartTime < 45*1000
+EndWhile
+Thread.Run = VerseMove
+While EV3.Time - StartTime < 57*1000
+EndWhile
+Thread.Run = VerseEnd
+While EV3.Time - StartTime < 66*1000
+EndWhile
+Thread.Run = Chorus
+While EV3.Time - StartTime < 82*1000
+EndWhile
+Thread.Run = Chorus
+While EV3.Time - StartTime < 98*1000
+EndWhile
+Thread.Run = ChorusEnd
+While EV3.Time - StartTime < 500*1000
+EndWhile
+
+
+'Subs
+
+Sub Chorus '16 seconds
+  ChorusStart = EV3.Time
+  While EV3.Time - ChorusStart < 4*1000 'Move forwards 4 seconds
+    MotorAngle = 0
+    MotorSpeed = Max
+    MotorSpeedZ = 0
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "True")
+  While EV3.Time - ChorusStart < 8*1000 'Move backwards 4 seconds
+    MotorAngle = 180
+    MotorSpeed = Max
+    MotorSpeedZ = 0
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "True")
+  startangle = GyroStart - 90
+  While EV3.Time - ChorusStart < 9*1000 And Sensor.ReadRawValue(2,0) > startangle 'Turn 90 degrees right
+    MotorAngle = 0
+    MotorSpeed = 0
+    MotorSpeedZ = -50
+    GyroUpdate() 
+  EndWhile
+  Motor.Stop(All, "True")
+  While EV3.Time - ChorusStart < 9*1000 'Wait if needed
+  EndWhile
+  startangle = GyroStart + 90
+  While EV3.Time - ChorusStart < 12*1000 And Sensor.ReadRawValue(2,0) < startangle 'Turn 90 degrees left
+    MotorAngle = 0
+    MotorSpeed = 0
+    MotorSpeedZ = 20
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "True")
+  While EV3.Time - ChorusStart < 12*1000 'Wait if needed
+  EndWhile
+  startangle = GyroStart
+  While EV3.Time - ChorusStart < 14*1000 And Sensor.ReadRawValue(2,0) > startangle 'Face the front
+    MotorAngle = 0
+    MotorSpeed = 0
+    MotorSpeedZ = -50
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "True")
+  While EV3.Time - ChorusStart < 14*1000 'Wait if needed
+  EndWhile
+  startangle = GyroStart + 45
+  While EV3.Time - ChorusStart < 14.5*1000 And Sensor.ReadRawValue(2,0) < startangle 'Turn 45 degrees left
+    MotorAngle = 0
+    MotorSpeed = 0
+    MotorSpeedZ = 35
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "True")
+  While EV3.Time - ChorusStart < 14.5*1000 'Wait if needed
+  EndWhile
+  startangle = GyroStart
+  While EV3.Time - ChorusStart < 15*1000 And Sensor.ReadRawValue(2,0) > startangle 'Face the front
+    MotorAngle = 0
+    MotorSpeed = 0
+    MotorSpeedZ = -35
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "False")
+  While EV3.Time - ChorusStart < 15*1000 'Wait if needed
+  EndWhile
+  startangle = GyroStart - 45
+  While EV3.Time - ChorusStart < 15.5*1000 And Sensor.ReadRawValue(2,0) > startangle 'Turn 45 degrees right
+    MotorAngle = 0
+    MotorSpeed = 0
+    MotorSpeedZ = -35
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "True")
+  While EV3.Time - ChorusStart < 15.5*1000 'Wait if needed
+  EndWhile
+  startangle = GyroStart
+  While EV3.Time - ChorusStart < 16*1000 And Sensor.ReadRawValue(2,0) < startangle 'Face the front
+    MotorAngle = 0
+    MotorSpeed = 0
+    MotorSpeedZ = 50
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "True")
+  While EV3.Time - ChorusStart < 16*1000 'Wait if needed
+  EndWhile
+EndSub
+
+Sub ChorusEnd '4 seconds
+  ChorusEndStart = EV3.Time
+  GyroStart = GyroStart + 360
+  startangle = GyroStart
+  While EV3.Time - ChorusEndStart < 4*1000 And Sensor.ReadRawValue(2,0) < startangle '360 spin
+    MotorAngle = 0
+    MotorSpeed = 0
+    MotorSpeedZ = 100
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "True")
+  While EV3.Time - ChorusEndStart < 4*1000 'Wait if needed
+  EndWhile
+EndSub
+
+Sub VerseStart '8 seconds
+  VerseStartStart = EV3.Time
+  While EV3.Time - VerseStartStart < 4*1000 'Move forwards 45 degrees right
+    MotorAngle = 45
+    MotorSpeed = Max
+    MotorSpeedZ = 0
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "True")
+  While EV3.Time - VerseStartStart < 8*1000 'Move 45 forwards degrees left
+    MotorAngle = 315
+    MotorSpeed = Max
+    MotorSpeedZ = 0
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "True")
+EndSub
+
+Sub VerseEnd '9 seconds
+  VerseEndStart = EV3.Time
+  While EV3.Time - VerseEndStart < 4*1000 'Move backwards 45 degrees left 
+    MotorAngle = 225
+    MotorSpeed = Max
+    MotorSpeedZ = 0
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "True")
+  While EV3.Time - VerseEndStart < 8*1000 'Move backwards 45 degrees right
+    MotorAngle = 135
+    MotorSpeed = Max
+    MotorSpeedZ = 0
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "True")
+  While EV3.Time - VerseEndStart < 9*1000 'Stay still
+  EndWhile
+EndSub
+  
+Sub VerseMove '4s + 8 seconds of chosen move
+  Move = ""
+  VerseMoveStart = EV3.Time
+  Motor.Stop(All, "True")
+  Received = "False"
+  While EV3.Time - VerseMoveStart < 4*1000 and Received = "False" '4 seconds of checking for message
+    LCD.Clear()
+    If Mailbox.Receive(MailID) = "Moonwalk" or Mailbox.Receive(MailID) = "Pirouette" or Mailbox.Receive(MailID) = "Splits" Then 'If a new message has been received
+      Move = Mailbox.Receive(MailID)
+      LCD.Write(20, 40, Move)
+      Speaker.Tone(50, 1000, 500)
+      Received = "True"
+    EndIf
+  EndWhile
+  While EV3.Time - VerseMoveStart < 4*1000 'Wait until 4 seconds has passed
+  EndWhile
+  If Move = "Moonwalk" Then
+    Moonwalk()
+  ElseIf Move = "Pirouette" Then
+    Pirouette()
+  Else
+    Splits()
+  EndIf
+EndSub
+
+Sub Moonwalk '8 seconds
+  MoonwalkStart = EV3.Time
+  startangle = GyroStart - 90
+  While EV3.Time - MoonwalkStart < 1*1000 And Sensor.ReadRawValue(2,0) > startangle 'Turn 90 degrees right
+    MotorAngle = 0
+    MotorSpeed = 0
+    MotorSpeedZ = -90
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "True")
+  While EV3.Time - MoonwalkStart < 1*1000 'Wait if needed
+  EndWhile
+  While EV3.Time - MoonwalkStart < 3*1000 'Move backwards (i.e. to the left) for 2 seconds
+    MotorAngle = 180
+    MotorSpeed = Max
+    MotorSpeedZ = 0
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "True")
+  startangle = GyroStart + 90
+  While EV3.Time - MoonwalkStart < 5*1000 And Sensor.ReadRawValue(2,0) < startangle 'Turn to the left
+    MotorAngle = 0
+    MotorSpeed = 0
+    MotorSpeedZ = 90
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "True")
+  While EV3.Time - MoonwalkStart < 5*1000 'Wait if needed
+  EndWhile
+  While EV3.Time - MoonwalkStart < 7*1000 'Move backwards (i.e. to the right) for 2 seconds
+    MotorAngle = 180
+    MotorSpeed = Max
+    MotorSpeedZ = 0
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "True")
+  startangle = GyroStart
+  While EV3.Time - MoonwalkStart < 8*1000 And Sensor.ReadRawValue(2,0) > startangle 'Face the front
+    MotorAngle = 0
+    MotorSpeed = 0
+    MotorSpeedZ = -90
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "True")
+  While EV3.Time - MoonwalkStart < 8*1000 'Wait if needed
+  EndWhile
+EndSub
+
+Sub Pirouette '8 seconds
+  PirouetteStart = EV3.Time
+  GyroStart = GyroStart + 720
+  startangle = GyroStart
+  While EV3.Time - PirouetteStart < 8*1000 And Sensor.ReadRawValue(2,0) < startangle 'Spin
+    MotorAngle = 0
+    MotorSpeed = 0
+    MotorSpeedZ = 40
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "True")
+  While EV3.Time - PirouetteStart < 8*1000 'Wait if needed
+  EndWhile
+EndSub
+
+Sub Splits '8 seconds
+  SplitsStart = EV3.Time
+  startangle = GyroStart - 90
+  While EV3.Time - SplitsStart < 1*1000 And Sensor.ReadRawValue(2,0) > startangle 'Turn 90 degrees right 
+    MotorAngle = 0
+    MotorSpeed = 0
+    MotorSpeedZ = -90
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "True")
+  While EV3.Time - SplitsStart < 1*1000 'Wait if needed
+  EndWhile
+  While EV3.Time - SplitsStart < 3*1000 'Move forwards (i.e. to the right) for 2 seconds
+    MotorAngle = 0
+    MotorSpeed = Max
+    MotorSpeedZ = 0
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "True")
+  startangle = GyroStart + 90
+  While EV3.Time - SplitsStart < 5*1000 And Sensor.ReadRawValue(2,0) < startangle 'Turn to the left
+    MotorAngle = 0
+    MotorSpeed = 0
+    MotorSpeedZ = 90
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "True")
+  While EV3.Time - SplitsStart < 5*1000
+  EndWhile
+  While EV3.Time - SplitsStart < 7*1000 'Move forwards (i.e. to the left) for 2 seconds
+    MotorAngle = 0
+    MotorSpeed = Max
+    MotorSpeedZ = 0
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "True")
+  startangle = GyroStart
+  While EV3.Time - SplitsStart < 8*1000 And Sensor.ReadRawValue(2,0) > startangle 'Face the front
+    MotorAngle = 0
+    MotorSpeed = 0
+    MotorSpeedZ = -90
+    GyroUpdate()
+  EndWhile
+  Motor.Stop(All, "True")
+  While EV3.Time - SplitsStart < 8*1000 'Wait if needed
+  EndWhile
+EndSub
+
+Sub UpdateLightReading
+  Sensor.SetMode(FrontSensor, 4)
+  Sensor.SetMode(LeftSensor, 4)
+  Sensor.SetMode(RightSensor, 4)
+  Sensor.SetMode(BackSensor, 4)
+  RawFront = Sensor.ReadRaw(FrontSensor, 3)
+  RawLeft = Sensor.ReadRaw(LeftSensor, 3)
+  RawRight = Sensor.ReadRaw(RightSensor, 3)
+  RawBack = Sensor.ReadRaw(BackSensor, 3)
+  For i = 0 To 2
+    'Updating Minimum Values
+    If RawFront[i] < MinFront[i] Then
+      MinFront[i] = RawFront[i]
+    EndIf
+    If RawLeft[i] < MinLeft[i] Then
+      MinLeft[i] = RawLeft[i]
+    EndIf
+    If RawRight[i] < MinRight[i] Then
+      MinRight[i] = RawRight[i]
+    EndIf
+    If RawBack[i] < MinBack[i] Then
+      MinBack[i] = RawBack[i]
+    EndIf
+    'Updating Maximum Values
+    If RawFront[i] > MaxFront[i] Then
+      MaxFront[i] = RawFront[i]
+    EndIf
+    If RawLeft[i] > MaxLeft[i] Then
+      MaxLeft[i] = RawLeft[i]
+    EndIf
+    If RawRight[i] > MaxRight[i] Then
+      MaxRight[i] = RawRight[i]
+    EndIf
+    If RawBack[i] > MaxBack[i] Then
+      MaxBack[i] = RawBack[i]
+    EndIf
+    ' Normalising Values
+    NormFront[i] = ((RawFront[i] - MinFront[i])*100)/(MaxFront[i] - MinFront[i])
+    NormLeft[i] = ((RawLeft[i] - MinLeft[i])*100)/(MaxLeft[i] - MinLeft[i])
+    NormRight[i] = ((RawRight[i] - MinRight[i])*100)/(MaxRight[i] - MinRight[i])
+    NormBack[i] = ((RawBack[i] - MinBack[i]*100)/MaxBack[i] - MinBack[i])
+  EndFor
+EndSub
